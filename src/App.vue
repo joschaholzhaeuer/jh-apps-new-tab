@@ -17,7 +17,7 @@ export default {
   },
   data() {
     return {
-      numberOfBlocks: 2
+      numberOfBlocks: 6
     }
   }
 };

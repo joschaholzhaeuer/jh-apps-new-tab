@@ -1,28 +1,30 @@
 <template>
   <div class="block">
     <h2>{{ blockHeading }}</h2>
-    <form v-on:submit="addItem">
-      <input
-        type="text"
-  			v-model="newItem.name"
-  			placeholder="Name"
-  		/>
-      <input
-        type="text"
-  			v-model="newItem.link"
-  			placeholder="Link"
-  		/>
-      <input type="submit" value="Link hinzufügen">
-    </form>
-    <ul v-if="blockItems.length">
-      <li
-        v-for="item in blockItems"
-        :key="item.id"
-        >
-        <a :href="item.link">{{ item.name }}</a>
-      </li>
-    </ul>
-    <p v-else>No links entered yet</p>
+    <div class="block__content">
+      <form v-on:submit="addItem">
+        <input
+          type="text"
+    			v-model="newItem.name"
+    			placeholder="Name"
+    		/>
+        <input
+          type="text"
+    			v-model="newItem.link"
+    			placeholder="Link"
+    		/>
+        <input type="submit" value="Link hinzufügen">
+      </form>
+      <ul v-if="blockItems.length">
+        <li
+          v-for="item in blockItems"
+          :key="item.id"
+          >
+          <a :href="item.link">{{ item.name }}</a>
+        </li>
+      </ul>
+      <p v-else>No links entered yet</p>
+    </div>
   </div>
 </template>
 
@@ -86,6 +88,10 @@ h2 {
 
 .block {
   background-color: #fff;
+
+  &__content {
+    padding: 1em 0;
+  }
 }
 
 h2 {
@@ -127,8 +133,10 @@ input[type="submit"] {
 
 ul {
   list-style-type: none;
-  padding: 1em 0;
-  margin: 0;
+  padding: 1em;
+  margin: 0 auto;
+  text-align: left;
+  max-width: 400px;
 }
 
 li {
@@ -138,7 +146,7 @@ li {
 a {
   display: block;
   color: #42b983;
-  padding: 0.7em 2.2em;
+  padding: 0.5em 0;
   font-family: 'Merriweather';
 }
 </style>
