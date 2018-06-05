@@ -1,8 +1,12 @@
 <template>
   <div class="block">
-    <h2>{{ blockHeading }}</h2>
+    <header>
+      <h2>{{ blockHeading }}</h2>
+      <button v-if="editable" v-on:click="toggleEditable">Speichern</button>
+      <button v-else v-on:click="toggleEditable">Bearbeiten</button>
+    </header>
     <div class="block__content">
-      <form v-on:submit="addItem">
+      <form v-if="editable" v-on:submit="addItem">
         <input
           type="text"
     			v-model="newItem.name"
@@ -21,6 +25,7 @@
           :key="item.id"
           >
           <a :href="item.link">{{ item.name }}</a>
+          <button v-if="editable" v-on:click="removeItem(item.id)">Entfernen</button>
         </li>
       </ul>
       <p v-else>No links entered yet</p>
@@ -38,6 +43,7 @@ export default {
     return {
       blockHeading: "Links",
       newItem: {},
+      editable: false,
       blockItems: [
         {
           id: nextItemId++,
@@ -53,6 +59,9 @@ export default {
     };
   },
   methods: {
+    toggleEditable: function() {
+      this.editable = !this.editable;
+    },
     addItem: function(e) {
       e.preventDefault();
 
@@ -69,11 +78,11 @@ export default {
         this.newItem = {};
       }
     },
-    // removeItem(idToRemove) {
-    //   this.todos = this.todos.filter(todo => {
-    //     return todo.id !== idToRemove;
-    //   });
-    // }
+    removeItem(idToRemove) {
+      this.blockItems = this.blockItems.filter(item => {
+        return item.id !== idToRemove;
+      });
+    }
   }
 
 };
