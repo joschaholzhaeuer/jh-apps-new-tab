@@ -1,12 +1,20 @@
 <template>
-  <div class="block">
+  <div
+    v-bind:class="{ isEditable: editable }"
+    class="block">
     <header>
       <h2>{{ blockHeading }}</h2>
-      <button v-if="editable" v-on:click="toggleEditable">Speichern</button>
-      <button v-else v-on:click="toggleEditable">Bearbeiten</button>
+      <button
+        v-if="editable"
+        v-on:click="deleteBlock"
+        class="btn-delete btn-delete--inline">
+        x
+      </button>
     </header>
     <div class="block__content">
-      <form v-if="editable" v-on:submit="addItem">
+      <form
+        v-if="editable"
+        v-on:submit="addItem">
         <input
           type="text"
     			v-model="newItem.name"
@@ -22,10 +30,15 @@
       <ul v-if="blockItems.length">
         <li
           v-for="item in blockItems"
-          :key="item.id"
+          v-bind:key="item.id"
           >
-          <a :href="item.link">{{ item.name }}</a>
-          <button v-if="editable" v-on:click="removeItem(item.id)">Entfernen</button>
+          <a v-bind:href="item.link">{{ item.name }}</a>
+          <button
+            v-if="editable"
+            v-on:click="removeItem(item.id)"
+            class="btn-delete">
+            x
+          </button>
         </li>
       </ul>
       <p v-else>No links entered yet</p>
@@ -39,11 +52,16 @@ let nextItemId = 1;
 export default {
 
   name: "Block",
+
+  props: [
+    'editable',
+    'deleteBlock'
+  ],
+
   data() {
     return {
       blockHeading: "Links",
       newItem: {},
-      editable: false,
       blockItems: [
         {
           id: nextItemId++,
@@ -58,10 +76,13 @@ export default {
       ]
     };
   },
+
   methods: {
+
     toggleEditable: function() {
       this.editable = !this.editable;
     },
+
     addItem: function(e) {
       e.preventDefault();
 
@@ -78,7 +99,8 @@ export default {
         this.newItem = {};
       }
     },
-    removeItem(idToRemove) {
+
+    removeItem: function(idToRemove) {
       this.blockItems = this.blockItems.filter(item => {
         return item.id !== idToRemove;
       });
@@ -97,10 +119,34 @@ h2 {
 
 .block {
   background-color: #fff;
+  box-shadow: 1px 1px 10px -1px rgba(0, 0, 0, 0.05);
 
   &__content {
     padding: 1em 0;
   }
+
+  &.isEditable {
+    // animation: wobble 1s infinite linear;
+  }
+}
+
+// @keyframes wobble {
+//   0% {
+//     transform: translate(0);
+//   }
+//   33% {
+//     transform: translate(-1px);
+//   }
+//   66% {
+//     transform: translate(1px);
+//   }
+//   100% {
+//     transform: translate(0);
+//   }
+// }
+
+header {
+  position: relative;
 }
 
 h2 {
@@ -108,6 +154,7 @@ h2 {
   background-color: #42b983;
   padding: 1em;
   margin: 0;
+  font-size: 1.2rem;
 }
 
 form {
@@ -149,13 +196,32 @@ ul {
 }
 
 li {
-  display: block;
+  display: flex;
+  justify-content: space-between;
 }
 
 a {
+  flex-grow: 2;
   display: block;
-  color: #42b983;
+  color: #98A5AF;
   padding: 0.5em 0;
   font-family: 'Merriweather';
+}
+
+.btn-delete {
+  background-color: transparent;
+  border: 0;
+  color: #d6819a;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+
+  &--inline {
+    position: absolute;
+    top: 50%;
+    right: 1em;
+    transform: translateY(-50%);
+    color: #fff;
+  }
 }
 </style>
