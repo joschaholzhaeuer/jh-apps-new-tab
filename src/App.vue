@@ -1,26 +1,28 @@
 <template>
   <div id="app">
     <Block
-      v-for="block in blocks"
-      v-bind:editable="editable"
-      v-bind:deleteBlock="deleteBlock"
-      v-bind:key="block.id"
+      v-for="(block, index) in blocks"
+      :editable="editable"
+      :block="block"
+      :index="index"
+      :key="block.id"
+      @deleteBlock="deleteBlock(index)"
     />
     <button
       v-if="editable && blocks.length < 9"
-      v-on:click="addBlock"
+      @click="addBlock"
       class="block-preview">
       +
     </button>
     <button
       v-if="editable"
-      v-on:click="toggleEditable"
+      @click="toggleEditable"
       class="btn-settings">
       Speichern
     </button>
     <button
       v-else
-      v-on:click="toggleEditable"
+      @click="toggleEditable"
       class="btn-settings">
       Bearbeiten
     </button>
@@ -63,8 +65,8 @@ export default {
       });
     },
 
-    deleteBlock: function() {
-      // this.blocks.splice(index, 1);
+    deleteBlock: function(index) {
+      this.blocks.splice(index, 1);
     }
   }
 };

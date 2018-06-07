@@ -1,12 +1,12 @@
 <template>
   <div
-    v-bind:class="{ isEditable: editable }"
+    :class="{ isEditable: editable }"
     class="block">
     <header>
       <h2>{{ blockHeading }}</h2>
       <button
         v-if="editable"
-        v-on:click="deleteBlock"
+        @click="$emit('deleteBlock', index)"
         class="btn-delete btn-delete--inline">
         x
       </button>
@@ -14,7 +14,7 @@
     <div class="block__content">
       <form
         v-if="editable"
-        v-on:submit="addItem">
+        @submit="addItem">
         <input
           type="text"
     			v-model="newItem.name"
@@ -30,12 +30,12 @@
       <ul v-if="blockItems.length">
         <li
           v-for="item in blockItems"
-          v-bind:key="item.id"
+          :key="item.id"
           >
-          <a v-bind:href="item.link">{{ item.name }}</a>
+          <a :href="item.link">{{ item.name }}</a>
           <button
             v-if="editable"
-            v-on:click="removeItem(item.id)"
+            @click="removeItem(item.id)"
             class="btn-delete">
             x
           </button>
@@ -55,7 +55,8 @@ export default {
 
   props: [
     'editable',
-    'deleteBlock'
+    'index',
+    'block'
   ],
 
   data() {
