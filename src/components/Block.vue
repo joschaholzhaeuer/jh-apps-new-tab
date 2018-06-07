@@ -3,7 +3,10 @@
     :class="{ isEditable: editable }"
     class="block">
     <header>
-      <h2>{{ blockHeading }}</h2>
+      <input type="text"
+        v-if="editable"
+        v-model="blockHeading">
+      <h2 v-else>{{ blockHeading }}</h2>
       <button
         v-if="editable"
         @click="$emit('deleteBlock', index)"
@@ -111,15 +114,23 @@ export default {
 };
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
+$c-black: #2c3e50;
+$c1-grey: #e0e0e0;
+$c2-grey: #f2f4f6;
+$c-white: #fff;
+
+$c1-main: #42b983;
+$c1-second: #427fb9;
+$c1-third: #ee6161;
+
 h1,
 h2 {
   font-weight: 700;
 }
 
 .block {
-  background-color: #fff;
+  background-color: $c-white;
   box-shadow: 1px 1px 10px -1px rgba(0, 0, 0, 0.05);
 
   &__content {
@@ -151,8 +162,8 @@ header {
 }
 
 h2 {
-  color: #fff;
-  background-color: #42b983;
+  color: $c-white;
+  background-color: $c1-main;
   padding: 1em;
   margin: 0;
   font-size: 1.2rem;
@@ -178,13 +189,13 @@ input {
 }
 
 input[type="submit"] {
-  color: #fff;
-  background-color: #42b983;
-  border: 1px solid darken(#42b983, 10%);
+  color: $c-white;
+  background-color: $c1-main;
+  border: 1px solid darken($c1-main, 10%);
   cursor: pointer;
 
   &:hover {
-    background-color: darken(#42b983, 10%);
+    background-color: darken($c1-main, 10%);
   }
 }
 
@@ -204,7 +215,7 @@ li {
 a {
   flex-grow: 2;
   display: block;
-  color: #98A5AF;
+  color: $c1-grey;
   padding: 0.5em 0;
   font-family: 'Merriweather';
 }
@@ -212,7 +223,7 @@ a {
 .btn-delete {
   background-color: transparent;
   border: 0;
-  color: #d6819a;
+  color: $c1-third;
   font-size: 1rem;
   font-weight: 700;
   cursor: pointer;
@@ -222,7 +233,7 @@ a {
     top: 50%;
     right: 1em;
     transform: translateY(-50%);
-    color: #fff;
+    color: $c-white;
   }
 }
 </style>

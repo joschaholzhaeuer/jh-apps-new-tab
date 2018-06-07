@@ -73,9 +73,18 @@ export default {
 </script>
 
 <style lang="scss">
+$c-black: #2c3e50;
+$c1-grey: #e0e0e0;
+$c2-grey: #f2f4f6;
+$c-white: #fff;
+
+$c1-main: #42b983;
+$c1-second: #427fb9;
+$c1-third: #ee6161;
+
 body {
   margin: 0;
-  background-color: #f2f4f6;
+  background-color: $c2-grey;
 }
 
 #app {
@@ -83,8 +92,8 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
-  color: #2c3e50;
-  background-color: #f2f4f6;
+  color: $c-black;
+  background-color: $c2-grey;
   padding: 2em;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -94,9 +103,9 @@ body {
 }
 
 .block-preview {
-  background-color: #f2f4f6;
-  color: #42b983;
-  border: 3px solid #42b983;
+  background-color: $c2-grey;
+  color: $c1-main;
+  border: 3px solid $c1-main;
   font-size: 5rem;
   cursor: pointer;
 }
@@ -105,9 +114,9 @@ body {
   position: fixed;
   bottom: 0;
   right: 0;
-  background-color: #e0e0e0;
+  background-color: $c1-grey;
   border: 0;
-  color: #fff;
+  color: $c-white;
   padding: 2em;
   cursor: pointer;
   font-size: 0.9rem;
