@@ -74,7 +74,7 @@ export default {
 
 <style lang="scss">
 $c-black: #2c3e50;
-$c1-grey: #e0e0e0;
+$c1-grey: #b7babd;
 $c2-grey: #f2f4f6;
 $c-white: #fff;
 
@@ -82,13 +82,16 @@ $c1-main: #42b983;
 $c1-second: #427fb9;
 $c1-third: #ee6161;
 
+$f1-main: 'Merriweather', 'Times New Roman', serif;
+$f1-second: 'Open Sans', 'Helvetica', Arial, sans-serif;
+
 body {
   margin: 0;
   background-color: $c2-grey;
 }
 
 #app {
-  font-family: "Open Sans", Helvetica, Arial, sans-serif;
+  font-family: $f1-second;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;

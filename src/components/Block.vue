@@ -7,12 +7,12 @@
         v-if="editable"
         v-model="blockHeading">
       <h2 v-else>{{ blockHeading }}</h2>
-      <button
+      <icon
         v-if="editable"
+        name="times"
         @click="$emit('deleteBlock', index)"
         class="btn-delete btn-delete--inline">
-        x
-      </button>
+      </icon>
     </header>
     <div class="block__content">
       <form
@@ -35,26 +35,34 @@
           v-for="item in blockItems"
           :key="item.id"
           >
+          <icon :name="item.icon"></icon>
           <a :href="item.link">{{ item.name }}</a>
-          <button
+          <icon
             v-if="editable"
+            name="times"
             @click="removeItem(item.id)"
             class="btn-delete">
-            x
-          </button>
+          </icon>
         </li>
       </ul>
-      <p v-else>No links entered yet</p>
+      <p v-else>No links entered yet. Start adding your favorite links and websites!</p>
     </div>
   </div>
 </template>
 
 <script>
+import 'vue-awesome/icons';
+import Icon from 'vue-awesome/components/Icon';
+
 let nextItemId = 1;
 
 export default {
 
   name: "Block",
+
+  components: {
+    Icon
+  },
 
   props: [
     'editable',
@@ -70,12 +78,14 @@ export default {
         {
           id: nextItemId++,
           name: "Medium",
-          link: "https://medium.com"
+          link: "https://medium.com",
+          icon: "windows"
         },
         {
           id: nextItemId++,
           name: "Die Zeit",
-          link: "https://zeit.de"
+          link: "https://zeit.de",
+          icon: "beer"
         }
       ]
     };
@@ -116,13 +126,22 @@ export default {
 
 <style scoped lang="scss">
 $c-black: #2c3e50;
-$c1-grey: #e0e0e0;
+$c1-grey: #b7babd;
 $c2-grey: #f2f4f6;
 $c-white: #fff;
 
 $c1-main: #42b983;
 $c1-second: #427fb9;
 $c1-third: #ee6161;
+
+$f1-main: 'Merriweather', 'Times New Roman', serif;
+$f1-second: 'Open Sans', 'Helvetica', sans-serif;
+
+*,
+*:after,
+*:before {
+  box-sizing: border-box;
+}
 
 h1,
 h2 {
@@ -137,34 +156,27 @@ h2 {
     padding: 1em 0;
   }
 
-  &.isEditable {
-    // animation: wobble 1s infinite linear;
-  }
+  // &.isEditable {
+  // }
 }
-
-// @keyframes wobble {
-//   0% {
-//     transform: translate(0);
-//   }
-//   33% {
-//     transform: translate(-1px);
-//   }
-//   66% {
-//     transform: translate(1px);
-//   }
-//   100% {
-//     transform: translate(0);
-//   }
-// }
 
 header {
   position: relative;
-}
-
-h2 {
   color: $c-white;
   background-color: $c1-main;
   padding: 1em;
+
+  input {
+    color: $c1-grey;
+    border: 1px solid darken($c1-main, 5%);
+    font-weight: 700;
+    margin-bottom: 0;
+    width: 100%;
+    max-width: 400px;
+  }
+}
+
+h2 {
   margin: 0;
   font-size: 1.2rem;
 }
@@ -179,9 +191,17 @@ form {
 }
 
 input {
+  color: $c1-grey;
   font-size: 1rem;
-  padding: 0.5em;
+  padding: 1em 1.5em;
   margin-bottom: 0.5em;
+  border: 1px solid $c2-grey;
+  border-radius: 5px;
+  // background-color: inherit;
+
+  &::placeholder {
+    color: inherit;
+  }
 
   &:last-child {
     margin-bottom: 0;
@@ -191,17 +211,18 @@ input {
 input[type="submit"] {
   color: $c-white;
   background-color: $c1-main;
-  border: 1px solid darken($c1-main, 10%);
+  border: 1px solid darken($c1-main, 5%);
   cursor: pointer;
+  font-weight: 700;
 
   &:hover {
-    background-color: darken($c1-main, 10%);
+    background-color: darken($c1-main, 5%);
   }
 }
 
 ul {
   list-style-type: none;
-  padding: 1em;
+  padding: 1em 1.5em;
   margin: 0 auto;
   text-align: left;
   max-width: 400px;
@@ -210,6 +231,16 @@ ul {
 li {
   display: flex;
   justify-content: space-between;
+  align-items: center;
+}
+
+.fa-icon {
+  width: auto;
+  height: 1em;
+  max-width: 100%;
+  max-height: 100%;
+  color: $c1-grey;
+  margin-right: 1em;
 }
 
 a {
@@ -217,7 +248,15 @@ a {
   display: block;
   color: $c1-grey;
   padding: 0.5em 0;
-  font-family: 'Merriweather';
+  font-family: $f1-main;
+  text-decoration: none;
+}
+
+p {
+  margin: 0;
+  padding: 1.5em;
+  color: $c1-grey;
+  font-family: $f1-main;
 }
 
 .btn-delete {
