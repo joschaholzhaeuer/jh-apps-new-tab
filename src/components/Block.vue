@@ -11,8 +11,7 @@
         v-if="editable"
         name="times"
         @click="$emit('deleteBlock', index)"
-        class="btn-delete btn-delete--inline">
-      </icon>
+        class="icon icon--delete icon--white"></icon>
     </header>
     <div class="block__content">
       <form
@@ -35,13 +34,15 @@
           v-for="item in blockItems"
           :key="item.id"
           >
-          <icon :name="item.icon"></icon>
+          <icon
+            class="icon"
+            :name="item.icon"></icon>
           <a :href="item.link">{{ item.name }}</a>
           <icon
             v-if="editable"
             name="times"
             @click="removeItem(item.id)"
-            class="btn-delete">
+            class="icon icon--delete">
           </icon>
         </li>
       </ul>
@@ -79,13 +80,13 @@ export default {
           id: nextItemId++,
           name: "Medium",
           link: "https://medium.com",
-          icon: "windows"
+          icon: "anchor"
         },
         {
           id: nextItemId++,
           name: "Die Zeit",
           link: "https://zeit.de",
-          icon: "beer"
+          icon: "anchor"
         }
       ]
     };
@@ -108,13 +109,15 @@ export default {
         this.blockItems.push({
           id: nextItemId++,
           name: trimmedName,
-          link: trimmedLink
+          link: trimmedLink,
+          icon: 'anchor'
         });
         this.newItem = {};
       }
     },
 
     removeItem: function(idToRemove) {
+      console.log('removed');
       this.blockItems = this.blockItems.filter(item => {
         return item.id !== idToRemove;
       });
@@ -153,26 +156,36 @@ h2 {
   box-shadow: 1px 1px 10px -1px rgba(0, 0, 0, 0.05);
 
   &__content {
-    padding: 1em 0;
+    padding: 1em 1.5em;
   }
 
-  // &.isEditable {
-  // }
+  &.isEditable {
+
+    header {
+      display: flex;
+      align-items: center;
+    }
+  }
 }
 
 header {
   position: relative;
   color: $c-white;
   background-color: $c1-main;
-  padding: 1em;
+  padding: 1em 1.5em;
 
   input {
-    color: $c1-grey;
-    border: 1px solid darken($c1-main, 5%);
-    font-weight: 700;
+    color: $c-white;
+    font-family: $f1-second;
+    background-color: transparent;
+    border: 0;
+    font-size: 1.2rem;
+    font-weight: bold;
     margin-bottom: 0;
+    text-align: center;
     width: 100%;
     max-width: 400px;
+    padding: 0;
   }
 }
 
@@ -182,7 +195,7 @@ h2 {
 }
 
 form {
-  padding: 1em 1em 0;
+  padding: 1em 0;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -192,12 +205,21 @@ form {
 
 input {
   color: $c1-grey;
+  font-family: $f1-main;
   font-size: 1rem;
   padding: 1em 1.5em;
   margin-bottom: 0.5em;
   border: 1px solid $c2-grey;
   border-radius: 5px;
-  // background-color: inherit;
+
+  &[type="submit"] {
+    font-family: $f1-second;
+  }
+
+  &:focus {
+    outline: 0;
+    border-color: $c1-grey;
+  }
 
   &::placeholder {
     color: inherit;
@@ -222,7 +244,7 @@ input[type="submit"] {
 
 ul {
   list-style-type: none;
-  padding: 1em 1.5em;
+  padding: 1em 0;
   margin: 0 auto;
   text-align: left;
   max-width: 400px;
@@ -234,13 +256,26 @@ li {
   align-items: center;
 }
 
-.fa-icon {
+.icon {
   width: auto;
   height: 1em;
   max-width: 100%;
   max-height: 100%;
   color: $c1-grey;
   margin-right: 1em;
+  font-size: 1rem;
+  background-color: transparent;
+  border: 0;
+  cursor: pointer;
+
+  &--delete {
+    margin-right: 0;
+    color: $c1-third;
+  }
+
+  &--white {
+    color: $c-white;
+  }
 }
 
 a {
@@ -259,20 +294,17 @@ p {
   font-family: $f1-main;
 }
 
-.btn-delete {
-  background-color: transparent;
-  border: 0;
-  color: $c1-third;
+.btn {
+  cursor: pointer;
   font-size: 1rem;
   font-weight: 700;
-  cursor: pointer;
+  border: 0;
+  padding: 1em;
+  width: 100%;
 
-  &--inline {
-    position: absolute;
-    top: 50%;
-    right: 1em;
-    transform: translateY(-50%);
+  &--delete {
     color: $c-white;
+    background-color: $c1-third;
   }
 }
 </style>
