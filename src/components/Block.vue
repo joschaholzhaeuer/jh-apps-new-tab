@@ -196,10 +196,10 @@ form {
 }
 
 input {
-  color: $c1-grey;
+  color: $c1-main;
   font-family: $f1-main;
   font-size: 1rem;
-  padding: 1em 1.5em;
+  padding: 0.57em 1em;
   margin-bottom: 0.5em;
   border: 1px solid $c2-grey;
   border-radius: 5px;
@@ -210,11 +210,11 @@ input {
 
   &:focus {
     outline: 0;
-    border-color: $c1-grey;
+    border-color: $c1-main;
   }
 
   &::placeholder {
-    color: inherit;
+    color: $c1-grey;
   }
 
   &:last-child {
@@ -228,6 +228,8 @@ input[type="submit"] {
   border: 1px solid darken($c1-main, 5%);
   cursor: pointer;
   font-weight: 700;
+  padding: 0.5em 1em;
+  align-self: flex-start;
 
   &:hover {
     background-color: darken($c1-main, 5%);

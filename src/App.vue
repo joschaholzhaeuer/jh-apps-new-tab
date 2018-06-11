@@ -15,16 +15,18 @@
       +
     </button>
     <button
-      v-if="editable"
       @click="toggleEditable"
       class="btn-settings">
-      Speichern
-    </button>
-    <button
-      v-else
-      @click="toggleEditable"
-      class="btn-settings">
-      Bearbeiten
+      <icon
+        v-if="editable"
+        name="check"
+        class="icon">
+      </icon>
+      <icon
+        v-else
+        name="cog"
+        class="icon">
+      </icon>
     </button>
   </div>
 </template>
@@ -32,6 +34,8 @@
 
 
 <script>
+import 'vue-awesome/icons';
+import Icon from 'vue-awesome/components/Icon';
 import Block from "./components/Block";
 
 let nextBlockId = 1;
@@ -41,7 +45,8 @@ export default {
   name: "App",
 
   components: {
-    Block
+    Block,
+    Icon
   },
 
   data() {
@@ -148,14 +153,29 @@ body {
 
 .btn-settings {
   position: fixed;
-  bottom: 0;
-  right: 0;
-  background-color: $c1-grey;
+  bottom: 10px;
+  right: 10px;
+  background-color: $c1-main;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
   border: 0;
   color: $c-white;
-  padding: 2em;
   cursor: pointer;
-  font-size: 0.9rem;
-  font-weight: 700;
+  box-shadow: 1px 1px 10px -1px rgba(0, 0, 0, 0.1);
+
+  &:focus {
+    outline: 0;
+    // background-color: darken($c1-main, 5%);
+    box-shadow: 2px 2px 20px -1px rgba(0, 0, 0, 0.2);
+  }
+
+  .icon {
+    width: auto;
+    height: 1em;
+    max-width: 100%;
+    max-height: 100%;
+    font-size: 1.4rem;
+  }
 }
 </style>
