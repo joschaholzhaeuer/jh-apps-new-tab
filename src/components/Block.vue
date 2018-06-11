@@ -7,11 +7,15 @@
         v-if="editable"
         v-model="blockHeading">
       <h2 v-else>{{ blockHeading }}</h2>
-      <icon
+      <span
         v-if="editable"
-        name="times"
         @click="$emit('deleteBlock', index)"
-        class="icon icon--delete icon--white"></icon>
+        class="icon-wrapper">
+        <icon
+          name="times"
+          class="icon icon--delete">
+        </icon>
+      </span>
     </header>
     <div class="block__content">
       <form
@@ -38,12 +42,14 @@
             class="icon"
             :name="item.icon"></icon>
           <a :href="item.link">{{ item.name }}</a>
-          <icon
+          <span
             v-if="editable"
-            name="times"
-            @click="removeItem(item.id)"
-            class="icon icon--delete">
-          </icon>
+            @click="removeItem(item.id)">
+            <icon
+              name="times"
+              class="icon icon--delete">
+            </icon>
+          </span>
         </li>
       </ul>
       <p v-else>No links entered yet. Start adding your favorite links and websites!</p>
@@ -140,12 +146,6 @@ $c1-third: #ee6161;
 $f1-main: 'Merriweather', 'Times New Roman', serif;
 $f1-second: 'Open Sans', 'Helvetica', sans-serif;
 
-*,
-*:after,
-*:before {
-  box-sizing: border-box;
-}
-
 h1,
 h2 {
   font-weight: 700;
@@ -153,19 +153,15 @@ h2 {
 
 .block {
   background-color: $c-white;
-  box-shadow: 1px 1px 10px -1px rgba(0, 0, 0, 0.05);
+  box-shadow: 1px 1px 10px -1px rgba(0, 0, 0, 0.1);
 
   &__content {
     padding: 1em 1.5em;
   }
 
-  &.isEditable {
+  // &.isEditable {
 
-    header {
-      display: flex;
-      align-items: center;
-    }
-  }
+  // }
 }
 
 header {
@@ -183,8 +179,6 @@ header {
     font-weight: bold;
     margin-bottom: 0;
     text-align: center;
-    width: 100%;
-    max-width: 400px;
     padding: 0;
   }
 }
@@ -199,8 +193,6 @@ form {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  max-width: 400px;
-  margin: 0 auto;
 }
 
 input {
@@ -244,10 +236,8 @@ input[type="submit"] {
 
 ul {
   list-style-type: none;
-  padding: 1em 0;
-  margin: 0 auto;
+  padding: 0;
   text-align: left;
-  max-width: 400px;
 }
 
 li {
@@ -273,8 +263,23 @@ li {
     color: $c1-third;
   }
 
-  &--white {
-    color: $c-white;
+  &-wrapper {
+    background-color: $c1-third;
+    display: block;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    box-shadow: 1px 1px 10px -1px rgba(0, 0, 0, 0.1);
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    .icon--delete {
+      color: $c-white;
+    }
   }
 }
 

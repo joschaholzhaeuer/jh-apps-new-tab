@@ -29,6 +29,8 @@
   </div>
 </template>
 
+
+
 <script>
 import Block from "./components/Block";
 
@@ -72,7 +74,11 @@ export default {
 };
 </script>
 
+
+
 <style lang="scss">
+
+// colors
 $c-black: #2c3e50;
 $c1-grey: #b7babd;
 $c2-grey: #f2f4f6;
@@ -82,12 +88,30 @@ $c1-main: #42b983;
 $c1-second: #427fb9;
 $c1-third: #ee6161;
 
+// fonts
 $f1-main: 'Merriweather', 'Times New Roman', serif;
 $f1-second: 'Open Sans', 'Helvetica', Arial, sans-serif;
+
+// breakpoints
+@mixin b-small {
+  @media (min-width: 840px) { @content; }
+}
+@mixin b-medium {
+  @media (min-width: 1240px) { @content; }
+}
+@mixin b-large {
+  @media (min-width: 1530px) { @content; }
+}
 
 body {
   margin: 0;
   background-color: $c2-grey;
+}
+
+*,
+*:after,
+*:before {
+  box-sizing: border-box;
 }
 
 #app {
@@ -99,10 +123,19 @@ body {
   background-color: $c2-grey;
   padding: 2em;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: minmax(340px, 1fr);
   grid-gap: 1em;
   max-width: 1200px;
   margin: 1em auto 0;
+
+  @include b-small {
+    grid-template-columns: repeat(2, minmax(340px, 1fr));
+  }
+
+  @include b-medium {
+    // padding: 2em 0;
+    grid-template-columns: repeat(3, minmax(340px, 1fr));
+  }
 }
 
 .block-preview {
