@@ -3,7 +3,8 @@
     :class="{ isEditable: editable }"
     class="block">
     <header
-      :class="this.blockColors.filter(item => { return item.selected })[0].name">
+      :class="this.blockColors.filter(item => { return item.selected })[0].name"
+      class="block__header">
       <input type="text"
         v-if="editable"
         v-model="blockHeading">
@@ -37,57 +38,93 @@
         </ul>
       </div>
     </header>
-    <div
-      v-for="group in groups"
-      :key="group.id"
-      class="block__content">
-      <input type="text"
-        v-if="editable"
-        v-model="group.heading"
-        class="block__input">
-      <h3 v-else>{{ group.heading }}</h3>
-      <ul v-if="group.items.length">
-        <li
-          v-for="item in group.items"
-          :key="item.id"
-          >
-          <icon
-            class="icon"
-            :name="item.icon">
-          </icon>
+    <div class="block__content">
+      <section
+        v-if="groups.length"
+        v-for="group in groups"
+        :key="group.id">
+        <header
+          class="section__header">
+          <input type="text"
+            v-if="editable"
+            v-model="group.heading"
+            class="section__input">
           <span
             v-if="editable"
-            class="link">{{ item.name }}</span>
-          <a
-            v-else
-            :href="item.link"
-            class="link">{{ item.name }}</a>
-          <span
-            v-if="editable"
-            @click="removeItem(item.id)"
-            class="block__span">
+            @click="removeGroup(group.id)"
+            class="section__span">
             <icon
               name="times"
               class="icon icon--delete">
             </icon>
           </span>
-        </li>
-      </ul>
+          <h3 v-else>{{ group.heading }}</h3>
+        </header>
+        <ul v-if="group.items.length">
+          <li
+            v-for="item in group.items"
+            :key="item.id"
+            >
+            <icon
+              class="icon"
+              :name="item.icon">
+            </icon>
+            <span
+              v-if="editable"
+              class="link">{{ item.name }}</span>
+            <a
+              v-else
+              :href="item.link"
+              class="link">{{ item.name }}</a>
+            <span
+              v-if="editable"
+              @click="removeItem(item.id)"
+              class="block__span">
+              <icon
+                name="times"
+                class="icon icon--delete">
+              </icon>
+            </span>
+          </li>
+        </ul>
+      </section>
       <p v-else>No links entered yet. Start adding your favorite links and websites!</p>
-      <form
+      <div
         v-if="editable"
-        @submit="addItem">
+        class="tab">
+        <span
+          @click="switchTabs('item')"
+          :class="{ 'is-active': itemEditable }"
+          class="tab__item">Links</span>
+        <span
+          @click="switchTabs('heading')"
+          :class="{ 'is-active': groupEditable }"
+          class="tab__item">Gruppe</span>
+      </div>
+      <form
+        v-if="editable && itemEditable"
+        @submit.prevent="addItem">
         <input
           type="text"
-    			v-model="newItem.name"
-    			placeholder="Name"
-    		/>
+          v-model="newItem.name"
+          placeholder="Name, z.B. dreiQBIK"
+        />
         <input
           type="text"
-    			v-model="newItem.link"
-    			placeholder="Link"
-    		/>
-        <input type="submit" value="Link hinzufügen">
+          v-model="newItem.link"
+          placeholder="Link, z.B. https://dreiqbik.de"
+        />
+        <input type="submit" value="Hinzufügen">
+      </form>
+      <form
+        v-if="editable && groupEditable"
+        @submit.prevent="addGroup">
+        <input
+          type="text"
+          v-model="newGroup.heading"
+          placeholder="Name"
+        />
+        <input type="submit" value="Hinzufügen">
       </form>
     </div>
   </div>
@@ -118,6 +155,9 @@ export default {
     return {
       blockHeading: 'Links',
       newItem: {},
+      newGroup: {},
+      groupEditable: false,
+      itemEditable: true,
       groups: [
         {
           id: nextGroupId++,
@@ -170,25 +210,49 @@ export default {
       self.editable = !self.editable;
     },
 
-    addItem: function(e) {
+    addGroup: function() {
       const self = this;
-      e.preventDefault();
 
-      if (self.newItem.name && self.newItem.link) {
+      if (!self.newGroup.heading) return;
 
-        // trim input values
-        const trimmedName = self.newItem.name.trim();
-        const trimmedLink = self.newItem.link.trim();
+      // trim input values
+      const trimmedName = self.newGroup.heading.trim();
 
-        // add new item to items group
-        self.groups[self.groups.length - 1].items.push({
-          id: nextItemId++,
-          name: trimmedName,
-          link: trimmedLink,
-          icon: 'anchor'
-        });
-        self.newItem = {};
-      }
+      // add new group to groups
+      self.groups.push({
+        id: nextItemId++,
+        heading: trimmedName,
+        items: []
+      });
+      self.newGroup = {};
+    },
+
+    removeGroup: function(idToRemove) {
+      const self = this;
+
+      // get items to keep
+      self.groups = self.groups.filter(group => {
+        return group.id !== idToRemove;
+      });
+    },
+
+    addItem: function() {
+      const self = this;
+
+      if (!self.newItem.name && !self.newItem.link) return;
+
+      // trim input values
+      const trimmedName = self.newItem.name.trim();
+      const trimmedLink = self.newItem.link.trim();
+
+      // add new item to items group
+      self.groups[self.groups.length - 1].items.push({
+        id: nextItemId++,
+        name: trimmedName,
+        link: trimmedLink,
+        icon: 'anchor'
+      });
+      self.newItem = {};
     },
 
     removeItem: function(idToRemove) {
@@ -230,6 +294,17 @@ export default {
       const selectedColor = self.blockColors.filter(item => {
         return item.selected === true;
       })[0];
+    },
+
+    switchTabs: function(activeTab) {
+      const self = this;
+      if (activeTab === 'heading') {
+        self.groupEditable = true;
+        self.itemEditable = false;
+      } else {
+        self.itemEditable = true;
+        self.groupEditable = false;
+      }
     }
   }
 
@@ -258,7 +333,7 @@ h1,
 h2,
 h3 {
   margin: 0;
-  font-weight: 700;
+  font-weight: bold;
 }
 
 .block {
@@ -276,93 +351,126 @@ h3 {
     }
   }
 
+  &__header {
+    position: relative;
+    color: $c-white;
+    padding: 1.3em 1.5em;
+
+    &.green {
+      background: linear-gradient(to bottom right, $c1-second 0%, darken($c1-second, 2%) 100%);
+    }
+
+    &.blue {
+      background: linear-gradient(to bottom right, $c2-main 0%, darken($c2-main, 2%) 100%);
+    }
+
+    &.yellow {
+      background: linear-gradient(to bottom right, $c1-fourth 0%, darken($c1-fourth, 2%) 100%);
+    }
+
+    &.red {
+      background: linear-gradient(to bottom right, $c1-third 0%, darken($c1-third, 2%) 100%);
+    }
+
+    input {
+      color: $c-white;
+      font-family: $f1-second;
+      background-color: transparent;
+      border: 1px dashed $c-white;
+      font-size: 1.1rem;
+      font-weight: bold;
+      margin-bottom: 0;
+      text-align: center;
+      padding: 0;
+      width: 100%;
+    }
+  }
+}
+
+h2 {
+  font-size: 1.1rem;
+}
+
+h3 {
+  color: $c1-main;
+  margin-bottom: 0.5em;
+  font-family: $f1-second;
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-align: left;
+  text-transform: uppercase;
+}
+
+.section {
+
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5em;
+  }
+
   &__input {
-    color: $c1-grey;
+    color: $c1-main;
     font-family: $f1-second;
     background-color: transparent;
-    border: 0;
+    border: 1px dashed $c1-grey;
     font-weight: bold;
-    font-size: 1rem;
+    font-size: 0.9rem;
     padding: 0;
-    width: 100%;
-    margin-bottom: 0.5em;
     text-align: left;
+    text-transform: uppercase;
+    flex-grow: 1;
+    margin-right: 1em;
   }
 
   &__span {
     display: flex;
   }
-
-  // &.isEditable {
-
-  // }
 }
 
-header {
-  position: relative;
-  color: $c-white;
-  padding: 1.3em 1.5em;
+.tab {
+  display: flex;
+  justify-content: flex-start;
 
-  &.green {
-    background: linear-gradient(to bottom right, $c1-second 0%, darken($c1-second, 2%) 100%);
-  }
-
-  &.blue {
-    background: linear-gradient(to bottom right, $c2-main 0%, darken($c2-main, 2%) 100%);
-  }
-
-  &.yellow {
-    background: linear-gradient(to bottom right, $c1-fourth 0%, darken($c1-fourth, 2%) 100%);
-  }
-
-  &.red {
-    background: linear-gradient(to bottom right, $c1-third 0%, darken($c1-third, 2%) 100%);
-  }
-
-  input {
-    color: $c-white;
-    font-family: $f1-second;
+  &__item {
     background-color: transparent;
-    border: 0;
-    font-size: 1.2rem;
+    border: 1px solid $c2-grey;
+    border-bottom: 0;
+    color: $c1-main;
+    font-size: 0.9rem;
     font-weight: bold;
-    margin-bottom: 0;
-    text-align: center;
-    padding: 0;
+    padding: 0.5em 2em;
+    margin-right: 0.5em;
+    cursor: pointer;
+
+    &.is-active {
+      background-color: $c2-grey;
+    }
+
+    &:last-child {
+      margin-right: 0;
+    }
   }
-}
-
-h2 {
-  font-size: 1.2rem;
-}
-
-h3 {
-  margin-bottom: 0.5em;
-  font-size: 1rem;
-  color: $c1-grey;
-  text-align: left;
 }
 
 form {
-  padding: 1em 0;
   display: flex;
   flex-direction: column;
   justify-content: center;
+  padding: 1em;
+  background-color: $c2-grey;
 
   input {
     color: $c1-main;
     font-family: $f1-main;
-    font-size: 1rem;
-    font-weight: normal;
-    padding: 0.57em 1.7em;
+    font-size: 0.9rem;
+    font-weight: 300;
+    padding: 0.57em 0.9em;
     margin-bottom: 0.5em;
-    border: 1px solid $c2-grey;
-    border-radius: 20px;
+    border: 1px solid $c1-grey;
     text-align: left;
-
-    &[type="submit"] {
-      font-family: $f1-second;
-    }
+    width: 100%;
 
     &:focus {
       outline: 0;
@@ -370,22 +478,23 @@ form {
     }
 
     &::placeholder {
+      font-family: $f1-second;
       color: $c1-grey;
-    }
-
-    &:last-child {
-      margin-bottom: 0;
+      font-weight: bold;
     }
   }
 
   input[type="submit"] {
     color: $c-white;
     background-color: $c1-main;
+    font-family: $f1-second;
     border: 1px solid darken($c1-main, 5%);
     cursor: pointer;
-    font-weight: 700;
+    font-weight: bold;
     padding: 0.5em 1.7em;
     align-self: flex-start;
+    margin-bottom: 0;
+    width: auto;
 
     &:hover {
       background-color: darken($c1-main, 5%);
@@ -396,7 +505,7 @@ form {
 .colors {
   margin-bottom: 0.5em;
   position: absolute;
-  top: 55px;
+  top: 57px;
   left: 50%;
   transform: translateX(-50%);
 
@@ -410,15 +519,15 @@ form {
   }
 
   .color {
-    width: 30px;
-    height: 30px;
+    width: 22px;
+    height: 22px;
     border-radius: 50%;
     margin: 0 0.2em;
     cursor: pointer;
     display: flex;
     justify-content: center;
     align-items: center;
-    border: 4px solid $c-white;
+    border: 3px solid $c-white;
 
     &--green {
       background: linear-gradient(to bottom right, $c1-second 0%, darken($c1-second, 2%) 100%);
@@ -439,6 +548,7 @@ form {
 
   .icon {
     color: $c-white;
+    height: 10px;
     margin-right: 0;
   }
 }
@@ -498,6 +608,8 @@ a,
   display: block;
   color: $c1-main;
   font-family: $f1-main;
+  font-size: 0.9rem;
+  font-weight: 300;
   text-decoration: none;
 }
 
@@ -510,8 +622,8 @@ p {
 
 .btn {
   cursor: pointer;
-  font-size: 1rem;
-  font-weight: 700;
+  font-size: 0.9rem;
+  font-weight: bold;
   border: 0;
   padding: 1em;
   width: 100%;

@@ -151,24 +151,22 @@ body {
 }
 
 .block-preview {
-  background-color: $c2-grey;
+  background-color: transparent;
   color: $c1-main;
-  border: 0;
+  border: 1px dashed $c1-grey;
   font-size: 5rem;
   cursor: pointer;
   display: flex;
   justify-content: center;
   align-items: center;
   min-height: 2em;
-  box-shadow: 1px 1px 10px -1px rgba(0, 0, 0, 0.1);
 
   &:focus {
     outline: 0;
-    box-shadow: 2px 2px 20px -1px rgba(0, 0, 0, 0.2);
   }
 
   .icon-wrapper {
-    background-color: $c1-main;
+    // background-color: $c1-main;
     border-radius: 50%;
     width: 50px;
     height: 50px;
@@ -178,7 +176,8 @@ body {
   }
 
   .icon {
-    color: $c-white;
+    // color: $c-white;
+    color: $c1-main;
     width: auto;
     height: 25px;
   }
