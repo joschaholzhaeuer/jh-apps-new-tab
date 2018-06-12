@@ -2,7 +2,8 @@
   <div
     :class="{ isEditable: editable }"
     class="block">
-    <header>
+    <header
+      :class="this.blockColors.filter(item => { return item.selected })[0].name">
       <input type="text"
         v-if="editable"
         v-model="blockHeading">
@@ -16,6 +17,25 @@
           class="icon icon--delete">
         </icon>
       </span>
+      <div
+        v-if="editable"
+        class="colors">
+        <ul>
+          <li
+            v-for="color in blockColors"
+            :key="color.id"
+            :class="'color--' + color.name"
+            :data-selected="color.selected"
+            @click="changeColor(color.id)"
+            class="color">
+            <icon
+              v-if="color.selected"
+              name="check"
+              class="icon">
+            </icon>
+          </li>
+        </ul>
+      </div>
     </header>
     <div class="block__content">
       <form
@@ -40,8 +60,15 @@
           >
           <icon
             class="icon"
-            :name="item.icon"></icon>
-          <a :href="item.link">{{ item.name }}</a>
+            :name="item.icon">
+          </icon>
+          <span
+            v-if="editable"
+            class="link">{{ item.name }}</span>
+          <a
+            v-else
+            :href="item.link"
+            class="link">{{ item.name }}</a>
           <span
             v-if="editable"
             @click="removeItem(item.id)">
@@ -94,6 +121,23 @@ export default {
           link: "https://zeit.de",
           icon: "anchor"
         }
+      ],
+      blockColors: [
+        {
+          id: 1,
+          name: 'green',
+          selected: true
+        },
+        {
+          id: 2,
+          name: 'blue',
+          selected: false
+        },
+        {
+          id: 3,
+          name: 'yellow',
+          selected: false
+        }
       ]
     };
   },
@@ -101,32 +145,61 @@ export default {
   methods: {
 
     toggleEditable: function() {
-      this.editable = !this.editable;
+      const self = this;
+      self.editable = !self.editable;
     },
 
     addItem: function(e) {
+      const self = this;
       e.preventDefault();
 
-      if (this.newItem.name && this.newItem.link) {
+      if (self.newItem.name && self.newItem.link) {
 
-        const trimmedName = this.newItem.name.trim();
-        const trimmedLink = this.newItem.link.trim();
+        const trimmedName = self.newItem.name.trim();
+        const trimmedLink = self.newItem.link.trim();
 
-        this.blockItems.push({
+        self.blockItems.push({
           id: nextItemId++,
           name: trimmedName,
           link: trimmedLink,
           icon: 'anchor'
         });
-        this.newItem = {};
+        self.newItem = {};
       }
     },
 
     removeItem: function(idToRemove) {
-      console.log('removed');
-      this.blockItems = this.blockItems.filter(item => {
+      const self = this;
+      self.blockItems = self.blockItems.filter(item => {
         return item.id !== idToRemove;
       });
+    },
+
+    changeColor: function(colorId) {
+      const self = this;
+
+      // get previous selected color and set to false
+      const previousColor = self.blockColors.filter(item => {
+        return item.selected;
+      })[0];
+
+      // unselect previous selected color
+      if (previousColor) {
+        previousColor.selected = false;
+      }
+
+      // set clicked color to selected
+      self.blockColors.filter(item => {
+        return item.id === colorId;
+      })[0].selected = true;
+    },
+
+    getSelectedColor: function() {
+      const self = this;
+      const selectedColor = self.blockColors.filter(item => {
+        return item.selected === true;
+      })[0];
+      console.log(selectedColor);
     }
   }
 
@@ -139,9 +212,12 @@ $c1-grey: #b7babd;
 $c2-grey: #f2f4f6;
 $c-white: #fff;
 
-$c1-main: #42b983;
-$c1-second: #427fb9;
+$c1-main: #a0b0c0;
+$c2-main: #427fb9;
+$c1-second: #42b983;
 $c1-third: #ee6161;
+$c1-fourth: #ecd261;
+$c1-fifth: #df4768;
 
 $f1-main: 'Merriweather', 'Times New Roman', serif;
 $f1-second: 'Open Sans', 'Helvetica', sans-serif;
@@ -154,6 +230,7 @@ h2 {
 .block {
   background-color: $c-white;
   box-shadow: 1px 1px 10px -1px rgba(0, 0, 0, 0.1);
+  position: relative;
 
   &__content {
     padding: 1em 1.5em;
@@ -167,8 +244,19 @@ h2 {
 header {
   position: relative;
   color: $c-white;
-  background-color: $c1-main;
-  padding: 1em 1.5em;
+  padding: 1.3em 1.5em;
+
+  &.green {
+    background-color: $c1-second;
+  }
+
+  &.blue {
+    background-color: $c2-main;
+  }
+
+  &.yellow {
+    background-color: $c1-fourth;
+  }
 
   input {
     color: $c-white;
@@ -199,10 +287,10 @@ input {
   color: $c1-main;
   font-family: $f1-main;
   font-size: 1rem;
-  padding: 0.57em 1em;
+  padding: 0.57em 1.7em;
   margin-bottom: 0.5em;
   border: 1px solid $c2-grey;
-  border-radius: 5px;
+  border-radius: 20px;
 
   &[type="submit"] {
     font-family: $f1-second;
@@ -228,11 +316,57 @@ input[type="submit"] {
   border: 1px solid darken($c1-main, 5%);
   cursor: pointer;
   font-weight: 700;
-  padding: 0.5em 1em;
+  padding: 0.5em 1.7em;
   align-self: flex-start;
 
   &:hover {
     background-color: darken($c1-main, 5%);
+  }
+}
+
+.colors {
+  margin-bottom: 0.5em;
+  position: absolute;
+  top: 3.5em;
+  left: 50%;
+  transform: translateX(-50%);
+
+  ul {
+    margin: 0;
+    padding-left: 0;
+    list-style: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .color {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    margin: 0 0.2em;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 4px solid $c-white;
+
+    &--green {
+      background: $c1-second;
+    }
+
+    &--blue {
+      background: $c2-main;
+    }
+
+    &--yellow {
+      background: $c1-fourth;
+    }
+  }
+
+  .icon {
+    color: $c-white;
+    margin-right: 0;
   }
 }
 
@@ -254,13 +388,12 @@ li {
   max-width: 100%;
   max-height: 100%;
   color: $c1-grey;
-  margin-right: 1em;
-  font-size: 1rem;
+  margin-right: 0.8em;
   background-color: transparent;
   border: 0;
-  cursor: pointer;
 
   &--delete {
+    cursor: pointer;
     margin-right: 0;
     color: $c1-third;
   }
@@ -278,6 +411,8 @@ li {
     display: flex;
     justify-content: center;
     align-items: center;
+    cursor: pointer;
+    // border: 4px solid $c-white;
 
     .icon--delete {
       color: $c-white;
@@ -285,7 +420,8 @@ li {
   }
 }
 
-a {
+a,
+.link {
   flex-grow: 2;
   display: block;
   color: $c1-grey;

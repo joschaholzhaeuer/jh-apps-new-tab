@@ -12,7 +12,13 @@
       v-if="editable && blocks.length < 9"
       @click="addBlock"
       class="block-preview">
-      +
+      <span
+        class="icon-wrapper">
+        <icon
+          name="plus"
+          class="icon">
+        </icon>
+      </span>
     </button>
     <button
       @click="toggleEditable"
@@ -89,8 +95,9 @@ $c1-grey: #b7babd;
 $c2-grey: #f2f4f6;
 $c-white: #fff;
 
-$c1-main: #42b983;
-$c1-second: #427fb9;
+$c1-main: #a0b0c0;
+$c2-main: #427fb9;
+$c1-second: #42b983;
 $c1-third: #ee6161;
 
 // fonts
@@ -138,7 +145,6 @@ body {
   }
 
   @include b-medium {
-    // padding: 2em 0;
     grid-template-columns: repeat(3, minmax(340px, 1fr));
   }
 }
@@ -149,6 +155,31 @@ body {
   border: 3px solid $c1-main;
   font-size: 5rem;
   cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 2em;
+
+  &:focus {
+    outline: 0;
+    box-shadow: 2px 2px 20px -1px rgba(0, 0, 0, 0.2);
+  }
+
+  .icon-wrapper {
+    background-color: $c1-main;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .icon {
+    color: $c-white;
+    width: auto;
+    height: 25px;
+  }
 }
 
 .btn-settings {
@@ -172,10 +203,9 @@ body {
 
   .icon {
     width: auto;
-    height: 1em;
+    height: 25px;
     max-width: 100%;
     max-height: 100%;
-    font-size: 1.4rem;
   }
 }
 </style>
