@@ -37,10 +37,13 @@
         </ul>
       </div>
     </header>
-    <div class="block__content">
-      <ul v-if="blockItems.length">
+    <div
+      v-for="group in groups"
+      :key="group.id"
+      class="block__content">
+      <ul v-if="group.items.length">
         <li
-          v-for="item in blockItems"
+          v-for="item in group.items"
           :key="item.id"
           >
           <icon
@@ -89,10 +92,11 @@ import 'vue-awesome/icons';
 import Icon from 'vue-awesome/components/Icon';
 
 let nextItemId = 1;
+let nextGroupId = 1;
 
 export default {
 
-  name: "Block",
+  name: 'Block',
 
   components: {
     Icon
@@ -106,20 +110,26 @@ export default {
 
   data() {
     return {
-      blockHeading: "Links",
+      blockHeading: 'Links',
       newItem: {},
-      blockItems: [
+      groups: [
         {
-          id: nextItemId++,
-          name: "Medium",
-          link: "https://medium.com",
-          icon: "anchor"
-        },
-        {
-          id: nextItemId++,
-          name: "Die Zeit",
-          link: "https://zeit.de",
-          icon: "anchor"
+          id: nextGroupId++,
+          heading: 'News',
+          items: [
+            {
+              id: nextItemId++,
+              name: 'Medium',
+              link: 'https://medium.com',
+              icon: 'anchor'
+            },
+            {
+              id: nextItemId++,
+              name: 'Die Zeit',
+              link: 'https://zeit.de',
+              icon: 'anchor'
+            }
+          ]
         }
       ],
       blockColors: [
@@ -160,10 +170,12 @@ export default {
 
       if (self.newItem.name && self.newItem.link) {
 
+        // trim input values
         const trimmedName = self.newItem.name.trim();
         const trimmedLink = self.newItem.link.trim();
 
-        self.blockItems.push({
+        // add new item to items group
+        self.groups[self.groups.length - 1].items.push({
           id: nextItemId++,
           name: trimmedName,
           link: trimmedLink,
@@ -175,8 +187,16 @@ export default {
 
     removeItem: function(idToRemove) {
       const self = this;
-      self.blockItems = self.blockItems.filter(item => {
-        return item.id !== idToRemove;
+
+      self.groups.filter(group => {
+
+        // get items to keep
+        const itemsToKeep = group.items.filter(item => {
+          return item.id !== idToRemove;
+        });
+
+        // save items without the deleted one
+        group.items = itemsToKeep;
       });
     },
 
