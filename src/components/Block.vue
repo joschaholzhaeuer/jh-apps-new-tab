@@ -39,32 +39,33 @@
       </div>
     </header>
     <div class="block__content">
-      <section
-        v-if="groups.length"
-        v-for="group in groups"
-        :key="group.id">
-        <header
-          class="section__header">
-          <input type="text"
-            v-if="editable"
-            v-model="group.heading"
-            class="section__input">
-          <span
-            v-if="editable"
-            @click="removeGroup(group.id)"
-            class="section__span">
-            <icon
-              name="times"
-              class="icon icon--delete">
-            </icon>
-          </span>
-          <h3 v-else>{{ group.heading }}</h3>
-        </header>
-        <ul v-if="group.items.length">
-          <li
-            v-for="item in group.items"
-            :key="item.id"
-            >
+      <ul>
+        <li
+          v-if="blockItems.length"
+          v-for="item in blockItems"
+          :key="item.id"
+          >
+          <div
+            v-if="item.type === 'heading'"
+            class="section">
+            <input type="text"
+              v-if="editable"
+              v-model="item.name"
+              class="section__input">
+            <span
+              v-if="editable"
+              @click="removeItem(item.id)"
+              class="section__span">
+              <icon
+                name="times"
+                class="icon icon--delete">
+              </icon>
+            </span>
+            <h3 v-else>{{ item.name }}</h3>
+          </div>
+          <div
+            v-if="item.type === 'link'"
+            class="section">
             <icon
               class="icon"
               :name="item.icon">
@@ -79,16 +80,16 @@
             <span
               v-if="editable"
               @click="removeItem(item.id)"
-              class="block__span">
+              class="section__span">
               <icon
                 name="times"
                 class="icon icon--delete">
               </icon>
             </span>
-          </li>
-        </ul>
-      </section>
-      <p v-else>No links entered yet. Start adding your favorite links and websites!</p>
+          </div>
+        </li>
+        <p v-else>No links entered yet. Start adding your favorite links and websites!</p>
+      </ul>
       <div
         v-if="editable"
         class="tab">
@@ -103,7 +104,7 @@
       </div>
       <form
         v-if="editable && itemEditable"
-        @submit.prevent="addItem">
+        @submit.prevent="addItem('link')">
         <input
           type="text"
           v-model="newItem.name"
@@ -118,10 +119,10 @@
       </form>
       <form
         v-if="editable && groupEditable"
-        @submit.prevent="addGroup">
+        @submit.prevent="addItem('heading')">
         <input
           type="text"
-          v-model="newGroup.heading"
+          v-model="newItem.name"
           placeholder="Name"
         />
         <input type="submit" value="Hinzufügen">
@@ -135,7 +136,6 @@ import 'vue-awesome/icons';
 import Icon from 'vue-awesome/components/Icon';
 
 let nextItemId = 1;
-let nextGroupId = 1;
 
 export default {
 
@@ -155,27 +155,28 @@ export default {
     return {
       blockHeading: 'Links',
       newItem: {},
-      newGroup: {},
       groupEditable: false,
       itemEditable: true,
-      groups: [
+      blockItems: [
         {
-          id: nextGroupId++,
-          heading: 'News',
-          items: [
-            {
-              id: nextItemId++,
-              name: 'Medium',
-              link: 'https://medium.com',
-              icon: 'anchor'
-            },
-            {
-              id: nextItemId++,
-              name: 'Die Zeit',
-              link: 'https://zeit.de',
-              icon: 'anchor'
-            }
-          ]
+          id: nextItemId++,
+          type: 'heading',
+          name: 'News',
+          icon: 'anchor',
+        },
+        {
+          id: nextItemId++,
+          type: 'link',
+          name: 'Medium',
+          icon: 'anchor',
+          link: 'https://medium.com',
+        },
+        {
+          id: nextItemId++,
+          type: 'link',
+          name: 'Die Zeit',
+          icon: 'anchor',
+          link: 'https://zeit.de',
         }
       ],
       blockColors: [
@@ -199,6 +200,14 @@ export default {
           name: 'red',
           selected: false
         }
+      ],
+      blockIcons: [
+        {
+          name: 'anchor'
+        },
+        {
+          name: 'windows'
+        }
       ]
     };
   },
@@ -210,63 +219,56 @@ export default {
       self.editable = !self.editable;
     },
 
-    addGroup: function() {
+    addItem: function(type) {
       const self = this;
+      let trimmedName;
+      let trimmedLink;
 
-      if (!self.newGroup.heading) return;
+      // type = heading
+      if (type === 'heading') {
+        if (self.newItem.name) {
+          trimmedName = self.newItem.name.trim();
 
-      // trim input values
-      const trimmedName = self.newGroup.heading.trim();
+          // add new item
+          self.blockItems.push({
+            id: nextItemId++,
+            type: 'heading',
+            name: trimmedName,
+            icon: 'anchor',
+          });
+        } else {
+          return;
+        }
 
-      // add new group to groups
-      self.groups.push({
-        id: nextItemId++,
-        heading: trimmedName,
-        items: []
-      });
-      self.newGroup = {};
-    },
+      // type = link
+      } else if (type === 'link') {
+        if (self.newItem.name && self.newItem.link) {
+          trimmedName = self.newItem.name.trim();
+          trimmedLink = self.newItem.link.trim();
 
-    removeGroup: function(idToRemove) {
-      const self = this;
+          // add new item
+          self.blockItems.push({
+            id: nextItemId++,
+            type: 'link',
+            name: trimmedName,
+            icon: 'anchor',
+            link: trimmedLink,
+          });
+        } else {
+          return;
+        }
+      }
 
-      // get items to keep
-      self.groups = self.groups.filter(group => {
-        return group.id !== idToRemove;
-      });
-    },
-
-    addItem: function() {
-      const self = this;
-
-      if (!self.newItem.name && !self.newItem.link) return;
-
-      // trim input values
-      const trimmedName = self.newItem.name.trim();
-      const trimmedLink = self.newItem.link.trim();
-
-      // add new item to items group
-      self.groups[self.groups.length - 1].items.push({
-        id: nextItemId++,
-        name: trimmedName,
-        link: trimmedLink,
-        icon: 'anchor'
-      });
+      // clear new item data
       self.newItem = {};
     },
 
     removeItem: function(idToRemove) {
       const self = this;
 
-      self.groups.filter(group => {
-
-        // get items to keep
-        const itemsToKeep = group.items.filter(item => {
-          return item.id !== idToRemove;
-        });
-
-        // save items without the deleted one
-        group.items = itemsToKeep;
+      // get items to keep
+      self.blockItems = self.blockItems.filter(item => {
+        return item.id !== idToRemove;
       });
     },
 
@@ -342,7 +344,7 @@ h3 {
   position: relative;
 
   &__content {
-    padding: 1.5em 1.5em 1em;
+    padding: 1.5em;
 
     li {
       &:last-child {
@@ -393,7 +395,7 @@ h2 {
 
 h3 {
   color: $c1-main;
-  margin-bottom: 0.5em;
+  margin-top: 1em;
   font-family: $f1-second;
   font-size: 0.9rem;
   font-weight: 700;
@@ -418,6 +420,7 @@ h3 {
     font-weight: bold;
     font-size: 0.9rem;
     padding: 0;
+    margin-top: 1em;
     text-align: left;
     text-transform: uppercase;
     flex-grow: 1;
@@ -565,6 +568,21 @@ li {
   justify-content: space-between;
   align-items: center;
   padding: 0.5em 0;
+
+  > div {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+  }
+
+  &:first-child {
+
+    h3,
+    .section__input {
+      margin-top: 0;
+    }
+  }
 }
 
 .icon {
