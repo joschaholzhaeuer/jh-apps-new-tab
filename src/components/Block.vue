@@ -38,21 +38,6 @@
       </div>
     </header>
     <div class="block__content">
-      <form
-        v-if="editable"
-        @submit="addItem">
-        <input
-          type="text"
-    			v-model="newItem.name"
-    			placeholder="Name"
-    		/>
-        <input
-          type="text"
-    			v-model="newItem.link"
-    			placeholder="Link"
-    		/>
-        <input type="submit" value="Link hinzufügen">
-      </form>
       <ul v-if="blockItems.length">
         <li
           v-for="item in blockItems"
@@ -80,6 +65,21 @@
         </li>
       </ul>
       <p v-else>No links entered yet. Start adding your favorite links and websites!</p>
+      <form
+        v-if="editable"
+        @submit="addItem">
+        <input
+          type="text"
+    			v-model="newItem.name"
+    			placeholder="Name"
+    		/>
+        <input
+          type="text"
+    			v-model="newItem.link"
+    			placeholder="Link"
+    		/>
+        <input type="submit" value="Link hinzufügen">
+      </form>
     </div>
   </div>
 </template>
@@ -136,6 +136,11 @@ export default {
         {
           id: 3,
           name: 'yellow',
+          selected: false
+        },
+        {
+          id: 4,
+          name: 'red',
           selected: false
         }
       ]
@@ -199,7 +204,6 @@ export default {
       const selectedColor = self.blockColors.filter(item => {
         return item.selected === true;
       })[0];
-      console.log(selectedColor);
     }
   }
 
@@ -217,7 +221,6 @@ $c2-main: #427fb9;
 $c1-second: #42b983;
 $c1-third: #ee6161;
 $c1-fourth: #ecd261;
-$c1-fifth: #df4768;
 
 $f1-main: 'Merriweather', 'Times New Roman', serif;
 $f1-second: 'Open Sans', 'Helvetica', sans-serif;
@@ -247,15 +250,19 @@ header {
   padding: 1.3em 1.5em;
 
   &.green {
-    background-color: $c1-second;
+    background: linear-gradient(to bottom right, $c1-second 0%, darken($c1-second, 2%) 100%);
   }
 
   &.blue {
-    background-color: $c2-main;
+    background: linear-gradient(to bottom right, $c2-main 0%, darken($c2-main, 2%) 100%);
   }
 
   &.yellow {
-    background-color: $c1-fourth;
+    background: linear-gradient(to bottom right, $c1-fourth 0%, darken($c1-fourth, 2%) 100%);
+  }
+
+  &.red {
+    background: linear-gradient(to bottom right, $c1-third 0%, darken($c1-third, 2%) 100%);
   }
 
   input {
@@ -327,7 +334,7 @@ input[type="submit"] {
 .colors {
   margin-bottom: 0.5em;
   position: absolute;
-  top: 3.5em;
+  top: 55px;
   left: 50%;
   transform: translateX(-50%);
 
@@ -352,15 +359,19 @@ input[type="submit"] {
     border: 4px solid $c-white;
 
     &--green {
-      background: $c1-second;
+      background: linear-gradient(to bottom right, $c1-second 0%, darken($c1-second, 2%) 100%);
     }
 
     &--blue {
-      background: $c2-main;
+      background: linear-gradient(to bottom right, $c2-main 0%, darken($c2-main, 2%) 100%);
     }
 
     &--yellow {
-      background: $c1-fourth;
+      background: linear-gradient(to bottom right, $c1-fourth 0%, darken($c1-fourth, 2%) 100%);
+    }
+
+    &--red {
+      background: linear-gradient(to bottom right, $c1-third 0%, darken($c1-third, 2%) 100%);
     }
   }
 
@@ -395,11 +406,10 @@ li {
   &--delete {
     cursor: pointer;
     margin-right: 0;
-    color: $c1-third;
   }
 
   &-wrapper {
-    background-color: $c1-third;
+    background: linear-gradient(to bottom right, $c1-third 0%, darken($c1-third, 2%) 100%);
     display: block;
     width: 30px;
     height: 30px;
@@ -447,7 +457,7 @@ p {
 
   &--delete {
     color: $c-white;
-    background-color: $c1-third;
+    background: linear-gradient(to bottom right, $c1-third 0%, darken($c1-third, 2%) 100%);
   }
 }
 </style>
