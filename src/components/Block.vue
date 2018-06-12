@@ -41,6 +41,11 @@
       v-for="group in groups"
       :key="group.id"
       class="block__content">
+      <input type="text"
+        v-if="editable"
+        v-model="group.heading"
+        class="block__input">
+      <h3 v-else>{{ group.heading }}</h3>
       <ul v-if="group.items.length">
         <li
           v-for="item in group.items"
@@ -59,7 +64,8 @@
             class="link">{{ item.name }}</a>
           <span
             v-if="editable"
-            @click="removeItem(item.id)">
+            @click="removeItem(item.id)"
+            class="block__span">
             <icon
               name="times"
               class="icon icon--delete">
@@ -231,22 +237,27 @@ export default {
 </script>
 
 <style scoped lang="scss">
+
+// colors
 $c-black: #2c3e50;
-$c1-grey: #b7babd;
-$c2-grey: #f2f4f6;
+$c1-grey: #d7dfe9;
+$c2-grey: #eaf0f6;
 $c-white: #fff;
 
-$c1-main: #a0b0c0;
+$c1-main: #afb8c2;
 $c2-main: #427fb9;
 $c1-second: #42b983;
 $c1-third: #ee6161;
 $c1-fourth: #ecd261;
 
+// fonts
 $f1-main: 'Merriweather', 'Times New Roman', serif;
 $f1-second: 'Open Sans', 'Helvetica', sans-serif;
 
 h1,
-h2 {
+h2,
+h3 {
+  margin: 0;
   font-weight: 700;
 }
 
@@ -256,7 +267,30 @@ h2 {
   position: relative;
 
   &__content {
-    padding: 1em 1.5em;
+    padding: 1.5em 1.5em 1em;
+
+    li {
+      &:last-child {
+        padding-bottom: 0;
+      }
+    }
+  }
+
+  &__input {
+    color: $c1-grey;
+    font-family: $f1-second;
+    background-color: transparent;
+    border: 0;
+    font-weight: bold;
+    font-size: 1rem;
+    padding: 0;
+    width: 100%;
+    margin-bottom: 0.5em;
+    text-align: left;
+  }
+
+  &__span {
+    display: flex;
   }
 
   // &.isEditable {
@@ -299,8 +333,14 @@ header {
 }
 
 h2 {
-  margin: 0;
   font-size: 1.2rem;
+}
+
+h3 {
+  margin-bottom: 0.5em;
+  font-size: 1rem;
+  color: $c1-grey;
+  text-align: left;
 }
 
 form {
@@ -308,46 +348,48 @@ form {
   display: flex;
   flex-direction: column;
   justify-content: center;
-}
 
-input {
-  color: $c1-main;
-  font-family: $f1-main;
-  font-size: 1rem;
-  padding: 0.57em 1.7em;
-  margin-bottom: 0.5em;
-  border: 1px solid $c2-grey;
-  border-radius: 20px;
+  input {
+    color: $c1-main;
+    font-family: $f1-main;
+    font-size: 1rem;
+    font-weight: normal;
+    padding: 0.57em 1.7em;
+    margin-bottom: 0.5em;
+    border: 1px solid $c2-grey;
+    border-radius: 20px;
+    text-align: left;
 
-  &[type="submit"] {
-    font-family: $f1-second;
+    &[type="submit"] {
+      font-family: $f1-second;
+    }
+
+    &:focus {
+      outline: 0;
+      border-color: $c1-main;
+    }
+
+    &::placeholder {
+      color: $c1-grey;
+    }
+
+    &:last-child {
+      margin-bottom: 0;
+    }
   }
 
-  &:focus {
-    outline: 0;
-    border-color: $c1-main;
-  }
+  input[type="submit"] {
+    color: $c-white;
+    background-color: $c1-main;
+    border: 1px solid darken($c1-main, 5%);
+    cursor: pointer;
+    font-weight: 700;
+    padding: 0.5em 1.7em;
+    align-self: flex-start;
 
-  &::placeholder {
-    color: $c1-grey;
-  }
-
-  &:last-child {
-    margin-bottom: 0;
-  }
-}
-
-input[type="submit"] {
-  color: $c-white;
-  background-color: $c1-main;
-  border: 1px solid darken($c1-main, 5%);
-  cursor: pointer;
-  font-weight: 700;
-  padding: 0.5em 1.7em;
-  align-self: flex-start;
-
-  &:hover {
-    background-color: darken($c1-main, 5%);
+    &:hover {
+      background-color: darken($c1-main, 5%);
+    }
   }
 }
 
@@ -403,6 +445,7 @@ input[type="submit"] {
 
 ul {
   list-style-type: none;
+  margin-top: 0;
   padding: 0;
   text-align: left;
 }
@@ -411,14 +454,13 @@ li {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding: 0.5em 0;
 }
 
 .icon {
   width: auto;
   height: 1em;
-  max-width: 100%;
-  max-height: 100%;
-  color: $c1-grey;
+  color: $c1-main;
   margin-right: 0.8em;
   background-color: transparent;
   border: 0;
@@ -454,8 +496,7 @@ a,
 .link {
   flex-grow: 2;
   display: block;
-  color: $c1-grey;
-  padding: 0.5em 0;
+  color: $c1-main;
   font-family: $f1-main;
   text-decoration: none;
 }
@@ -463,7 +504,7 @@ a,
 p {
   margin: 0;
   padding: 1.5em;
-  color: $c1-grey;
+  color: $c1-main;
   font-family: $f1-main;
 }
 

@@ -91,14 +91,15 @@ export default {
 
 // colors
 $c-black: #2c3e50;
-$c1-grey: #b7babd;
-$c2-grey: #f2f4f6;
+$c1-grey: #d7dfe9;
+$c2-grey: #eaf0f6;
 $c-white: #fff;
 
-$c1-main: #a0b0c0;
+$c1-main: #afb8c2;
 $c2-main: #427fb9;
 $c1-second: #42b983;
 $c1-third: #ee6161;
+$c1-fourth: #ecd261;
 
 // fonts
 $f1-main: 'Merriweather', 'Times New Roman', serif;
@@ -152,13 +153,14 @@ body {
 .block-preview {
   background-color: $c2-grey;
   color: $c1-main;
-  border: 3px solid $c1-main;
+  border: 0;
   font-size: 5rem;
   cursor: pointer;
   display: flex;
   justify-content: center;
   align-items: center;
   min-height: 2em;
+  box-shadow: 1px 1px 10px -1px rgba(0, 0, 0, 0.1);
 
   &:focus {
     outline: 0;
