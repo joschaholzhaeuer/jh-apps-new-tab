@@ -31,7 +31,7 @@
       @click="toggleEditable"
       class="btn-settings">
       <span v-if="editable">Speichern</span>
-      <span v-else>Einstellungen</span>
+      <span v-else>Bearbeiten</span>
       <icon
         v-if="editable"
         name="check"
@@ -200,6 +200,15 @@ body {
     justify-content: center;
     align-items: center;
     cursor: pointer;
+
+    &:focus {
+      outline: 0;
+      background-color: darken($c1-main, 10%);
+    }
+
+    &:hover {
+      background-color: darken($c1-main, 5%);
+    }
   }
 
   .icon {
@@ -221,6 +230,7 @@ body {
   color: $c-white;
   cursor: pointer;
   box-shadow: 1px 1px 10px -1px rgba(0, 0, 0, 0.1);
+  z-index: 10;
 
   &:focus {
     outline: 0;

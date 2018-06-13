@@ -165,7 +165,7 @@
       </form>
     </div>
     <Overlay
-      v-if="showIcons"
+      v-if="editable && showIcons"
       :activeColor="activeColor"
       @setIcon="setIcon"></Overlay>
   </div>
