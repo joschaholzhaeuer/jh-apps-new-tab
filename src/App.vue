@@ -1,18 +1,25 @@
 <template>
   <div id="app">
-    <Block
-      v-for="(block, index) in blocks"
-      :editable="editable"
-      :block="block"
-      :index="index"
-      :key="block.id"
-      @deleteBlock="deleteBlock(index)"
-    />
+    <draggable
+      v-model="blocks"
+      @start="drag=true"
+      @end="drag=false"
+      :options="{ disabled: editable ? false : true, handle: '.block__handle' }"
+      class="grid">
+      <Block
+        v-for="(block, index) in blocks"
+        :editable="editable"
+        :block="block"
+        :index="index"
+        :key="block.id"
+        @deleteBlock="deleteBlock(index)"
+      />
+    </draggable>
     <button
-      v-if="editable && blocks.length < 9"
-      @click="addBlock"
+      v-if="editable"
       class="block-preview">
       <span
+        @click="addBlock"
         class="icon-wrapper">
         <icon
           name="plus"
@@ -23,6 +30,8 @@
     <button
       @click="toggleEditable"
       class="btn-settings">
+      <span v-if="editable">Speichern</span>
+      <span v-else>Einstellungen</span>
       <icon
         v-if="editable"
         name="check"
@@ -43,6 +52,7 @@
 import 'vue-awesome/icons';
 import Icon from 'vue-awesome/components/Icon';
 import Block from "./components/Block";
+import draggable from 'vuedraggable';
 
 let nextBlockId = 1;
 
@@ -52,7 +62,8 @@ export default {
 
   components: {
     Block,
-    Icon
+    Icon,
+    draggable,
   },
 
   data() {
@@ -135,11 +146,16 @@ body {
   color: $c-black;
   background-color: $c2-grey;
   padding: 2em;
+  max-width: 1200px;
+  margin: 1em auto 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.grid {
   display: grid;
   grid-template-columns: minmax(340px, 1fr);
   grid-gap: 1em;
-  max-width: 1200px;
-  margin: 1em auto 0;
 
   @include b-small {
     grid-template-columns: repeat(2, minmax(340px, 1fr));
@@ -153,9 +169,8 @@ body {
 .block-preview {
   background-color: transparent;
   color: $c1-main;
-  border: 1px dashed $c1-grey;
+  border: 0;
   font-size: 5rem;
-  cursor: pointer;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -166,18 +181,18 @@ body {
   }
 
   .icon-wrapper {
-    // background-color: $c1-main;
+    background-color: $c1-main;
     border-radius: 50%;
     width: 50px;
     height: 50px;
     display: flex;
     justify-content: center;
     align-items: center;
+    cursor: pointer;
   }
 
   .icon {
-    // color: $c-white;
-    color: $c1-main;
+    color: $c-white;
     width: auto;
     height: 25px;
   }
@@ -198,8 +213,43 @@ body {
 
   &:focus {
     outline: 0;
-    // background-color: darken($c1-main, 5%);
-    box-shadow: 2px 2px 20px -1px rgba(0, 0, 0, 0.2);
+    background-color: darken($c1-main, 10%);
+  }
+
+  &:hover {
+    background-color: darken($c1-main, 5%);
+
+    span {
+      display: flex;
+    }
+  }
+
+  span {
+    display: none;
+    align-items: center;
+    background-color: $c-white;
+    color: $c1-main;
+    position: absolute;
+    left: -1.5em;
+    top: 0;
+    bottom: 0;
+    transform: translateX(-100%);
+    font-family: $f1-second;
+    font-weight: bold;
+    padding: 0 2em;
+    box-shadow: 1px 1px 10px -1px rgba(0, 0, 0, 0.1);
+
+    &:after {
+      content: "";
+      display: flex;
+      position: absolute;
+      right: -10px;
+      width: 0;
+      height: 0;
+      border-top: 10px solid transparent;
+      border-bottom: 10px solid transparent;
+      border-left: 10px solid $c-white;
+    }
   }
 
   .icon {

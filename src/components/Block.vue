@@ -3,8 +3,16 @@
     :class="{ isEditable: editable }"
     class="block">
     <header
-      :class="this.blockColors.filter(item => { return item.selected })[0].name"
-      class="block__header">
+      :class="blockColors.filter(item => { return item.selected })[0].name"
+      class="block__header block__handle">
+      <span
+        v-if="editable"
+        class="icon-wrapper icon-wrapper--drag handle">
+        <icon
+          name="arrows"
+          class="icon">
+        </icon>
+      </span>
       <input type="text"
         v-if="editable"
         v-model="blockHeading">
@@ -12,10 +20,10 @@
       <span
         v-if="editable"
         @click="$emit('deleteBlock', index)"
-        class="icon-wrapper">
+        class="icon-wrapper icon-wrapper--close icon-wrapper--red">
         <icon
           name="times"
-          class="icon icon--delete">
+          class="icon">
         </icon>
       </span>
       <div
@@ -32,7 +40,7 @@
             <icon
               v-if="color.selected"
               name="check"
-              class="icon">
+              class="icon icon--colored">
             </icon>
           </li>
         </ul>
@@ -40,54 +48,72 @@
     </header>
     <div class="block__content">
       <ul>
-        <li
+        <draggable
           v-if="blockItems.length"
-          v-for="item in blockItems"
-          :key="item.id"
-          >
-          <div
-            v-if="item.type === 'heading'"
-            class="section">
-            <input type="text"
-              v-if="editable"
-              v-model="item.name"
-              class="section__input">
+          v-model="blockItems"
+          @start="drag = true"
+          @end="drag = false"
+          :options="{
+            group: 'block',
+            disabled: editable ? false : true,
+            handle: '.handle'
+          }">
+          <li
+            v-for="item in blockItems"
+            :key="item.id"
+            >
             <span
               v-if="editable"
-              @click="removeItem(item.id)"
-              class="section__span">
+              class="icon-wrapper icon-wrapper--light handle">
               <icon
-                name="times"
-                class="icon icon--delete">
+                name="arrows"
+                class="icon">
               </icon>
             </span>
-            <h3 v-else>{{ item.name }}</h3>
-          </div>
-          <div
-            v-if="item.type === 'link'"
-            class="section">
-            <icon
-              class="icon"
-              :name="item.icon">
-            </icon>
-            <span
-              v-if="editable"
-              class="link">{{ item.name }}</span>
-            <a
-              v-else
-              :href="item.link"
-              class="link">{{ item.name }}</a>
-            <span
-              v-if="editable"
-              @click="removeItem(item.id)"
-              class="section__span">
+            <div
+              v-if="item.type === 'heading'"
+              class="section">
+              <input type="text"
+                v-if="editable"
+                v-model="item.name"
+                class="section__input">
+              <span
+                v-if="editable"
+                @click="removeItem(item.id)"
+                class="icon-wrapper">
+                <icon
+                  name="times"
+                  class="icon">
+                </icon>
+              </span>
+              <h3 v-else>{{ item.name }}</h3>
+            </div>
+            <div
+              v-if="item.type === 'link'"
+              class="section">
               <icon
-                name="times"
-                class="icon icon--delete">
+                class="icon icon--indicator"
+                :name="item.icon">
               </icon>
-            </span>
-          </div>
-        </li>
+              <span
+                v-if="editable"
+                class="link">{{ item.name }}</span>
+              <a
+                v-else
+                :href="item.link"
+                class="link">{{ item.name }}</a>
+              <span
+                v-if="editable"
+                @click="removeItem(item.id)"
+                class="icon-wrapper">
+                <icon
+                  name="times"
+                  class="icon">
+                </icon>
+              </span>
+            </div>
+          </li>
+        </draggable>
         <p v-else>No links entered yet. Start adding your favorite links and websites!</p>
       </ul>
       <div
@@ -134,6 +160,7 @@
 <script>
 import 'vue-awesome/icons';
 import Icon from 'vue-awesome/components/Icon';
+import draggable from 'vuedraggable';
 
 let nextItemId = 1;
 
@@ -142,13 +169,14 @@ export default {
   name: 'Block',
 
   components: {
-    Icon
+    Icon,
+    draggable,
   },
 
   props: [
     'editable',
     'index',
-    'block'
+    'block',
   ],
 
   data() {
@@ -177,7 +205,7 @@ export default {
           name: 'Die Zeit',
           icon: 'anchor',
           link: 'https://zeit.de',
-        }
+        },
       ],
       blockColors: [
         {
@@ -199,7 +227,7 @@ export default {
           id: 4,
           name: 'red',
           selected: false
-        }
+        },
       ],
       blockIcons: [
         {
@@ -207,8 +235,8 @@ export default {
         },
         {
           name: 'windows'
-        }
-      ]
+        },
+      ],
     };
   },
 
@@ -307,7 +335,7 @@ export default {
         self.itemEditable = true;
         self.groupEditable = false;
       }
-    }
+    },
   }
 
 };
@@ -357,6 +385,7 @@ h3 {
     position: relative;
     color: $c-white;
     padding: 1.3em 1.5em;
+    display: flex;
 
     &.green {
       background: linear-gradient(to bottom right, $c1-second 0%, darken($c1-second, 2%) 100%);
@@ -378,14 +407,24 @@ h3 {
       color: $c-white;
       font-family: $f1-second;
       background-color: transparent;
-      border: 1px dashed $c-white;
+      border: 1px dashed rgba($c-white, 0.3);
       font-size: 1.1rem;
       font-weight: bold;
       margin-bottom: 0;
+      margin-right: 39px;
       text-align: center;
       padding: 0;
       width: 100%;
+
+      &:focus {
+        outline: 0;
+        border-color: $c-white;
+      }
     }
+  }
+
+  &__handle {
+    cursor: move;
   }
 }
 
@@ -420,15 +459,15 @@ h3 {
     font-weight: bold;
     font-size: 0.9rem;
     padding: 0;
-    margin-top: 1em;
     text-align: left;
     text-transform: uppercase;
     flex-grow: 1;
     margin-right: 1em;
-  }
 
-  &__span {
-    display: flex;
+    &:focus {
+      outline: 0;
+      border-color: $c1-main;
+    }
   }
 }
 
@@ -506,9 +545,8 @@ form {
 }
 
 .colors {
-  margin-bottom: 0.5em;
   position: absolute;
-  top: 57px;
+  top: 54px;
   left: 50%;
   transform: translateX(-50%);
 
@@ -522,10 +560,9 @@ form {
   }
 
   .color {
-    width: 22px;
-    height: 22px;
     border-radius: 50%;
     margin: 0 0.2em;
+    padding: 5px;
     cursor: pointer;
     display: flex;
     justify-content: center;
@@ -547,12 +584,6 @@ form {
     &--red {
       background: linear-gradient(to bottom right, $c1-third 0%, darken($c1-third, 2%) 100%);
     }
-  }
-
-  .icon {
-    color: $c-white;
-    height: 10px;
-    margin-right: 0;
   }
 }
 
@@ -586,36 +617,63 @@ li {
 }
 
 .icon {
-  width: auto;
-  height: 1em;
-  color: $c1-main;
-  margin-right: 0.8em;
-  background-color: transparent;
-  border: 0;
+  color: $c-white;
+  width: 14px;
+  height: 14px;
 
-  &--delete {
-    cursor: pointer;
-    margin-right: 0;
+  &--indicator {
+    color: $c1-main;
+    margin-right: 0.6em;
   }
 
   &-wrapper {
-    background: linear-gradient(to bottom right, $c1-third 0%, darken($c1-third, 2%) 100%);
-    display: block;
-    width: 30px;
-    height: 30px;
+    background-color: $c1-main;
     border-radius: 50%;
-    box-shadow: 1px 1px 10px -1px rgba(0, 0, 0, 0.1);
-    position: absolute;
-    top: -10px;
-    right: -10px;
     display: flex;
-    justify-content: center;
     align-items: center;
+    justify-content: center;
+    padding: 5px;
     cursor: pointer;
-    // border: 4px solid $c-white;
+    box-shadow: 1px 1px 5px -1px rgba(0, 0, 0, 0.2);
 
-    .icon--delete {
-      color: $c-white;
+    &:hover {
+      background-color: darken($c1-main, 5%);
+    }
+
+    &--close {
+      position: absolute;
+      top: -10px;
+      right: -10px;
+    }
+
+    &--drag {
+      background-color: transparent;
+      box-shadow: none;
+
+      &:hover {
+        background-color: transparent;
+      }
+    }
+
+    &--red {
+      background: linear-gradient(to bottom right, $c1-third 0%, darken($c1-third, 2%) 100%);
+    }
+
+    &--light {
+      background-color: $c2-grey;
+
+      &:hover {
+        background-color: darken($c2-grey, 5%);
+      }
+
+      .icon {
+        color: $c1-main;
+      }
+    }
+
+    &.handle {
+      margin-right: 1em;
+      cursor: move;
     }
   }
 }
@@ -636,19 +694,5 @@ p {
   padding: 1.5em;
   color: $c1-main;
   font-family: $f1-main;
-}
-
-.btn {
-  cursor: pointer;
-  font-size: 0.9rem;
-  font-weight: bold;
-  border: 0;
-  padding: 1em;
-  width: 100%;
-
-  &--delete {
-    color: $c-white;
-    background: linear-gradient(to bottom right, $c1-third 0%, darken($c1-third, 2%) 100%);
-  }
 }
 </style>
