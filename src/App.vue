@@ -12,7 +12,7 @@
         :block="block"
         :index="index"
         :key="block.id"
-        @deleteBlock="deleteBlock(index)"
+        @deleteBlock="deleteBlock"
       />
     </draggable>
     <button
@@ -50,8 +50,8 @@
 
 <script>
 import 'vue-awesome/icons';
-import Icon from 'vue-awesome/components/Icon';
 import Block from "./components/Block";
+import Icon from 'vue-awesome/components/Icon';
 import draggable from 'vuedraggable';
 
 let nextBlockId = 1;
@@ -118,10 +118,10 @@ $f1-second: 'Open Sans', 'Helvetica', Arial, sans-serif;
 
 // breakpoints
 @mixin b-small {
-  @media (min-width: 840px) { @content; }
+  @media (min-width: 680px) { @content; }
 }
 @mixin b-medium {
-  @media (min-width: 1240px) { @content; }
+  @media (min-width: 1000px) { @content; }
 }
 @mixin b-large {
   @media (min-width: 1530px) { @content; }
@@ -146,23 +146,34 @@ body {
   color: $c-black;
   background-color: $c2-grey;
   padding: 2em;
-  max-width: 1200px;
   margin: 1em auto 0;
   display: flex;
   flex-direction: column;
+
+  @include b-medium {
+    max-width: 1200px;
+  }
+
+  @include b-large {
+    max-width: 1480px;
+  }
 }
 
 .grid {
   display: grid;
-  grid-template-columns: minmax(340px, 1fr);
+  grid-template-columns: minmax(320px, 1fr);
   grid-gap: 1em;
 
   @include b-small {
-    grid-template-columns: repeat(2, minmax(340px, 1fr));
+    grid-template-columns: repeat(2, minmax(300px, 1fr));
   }
 
   @include b-medium {
-    grid-template-columns: repeat(3, minmax(340px, 1fr));
+    grid-template-columns: repeat(3, minmax(300px, 1fr));
+  }
+
+  @include b-large {
+    grid-template-columns: repeat(4, minmax(300px, 1fr));
   }
 }
 

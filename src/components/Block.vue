@@ -3,7 +3,7 @@
     :class="{ isEditable: editable }"
     class="block">
     <header
-      :class="blockColors.filter(item => { return item.selected })[0].name"
+      :class="activeColor"
       class="block__header block__handle">
       <span
         v-if="editable"
@@ -18,7 +18,7 @@
         v-model="blockHeading">
       <h2 v-else>{{ blockHeading }}</h2>
       <span
-        v-if="editable"
+        v-if="editable && !showIcons"
         @click="$emit('deleteBlock', index)"
         class="icon-wrapper icon-wrapper--close icon-wrapper--red">
         <icon
@@ -131,11 +131,21 @@
       <form
         v-if="editable && itemEditable"
         @submit.prevent="addItem('link')">
-        <input
-          type="text"
-          v-model="newItem.name"
-          placeholder="Name, z.B. dreiQBIK"
-        />
+        <div>
+          <input
+            type="text"
+            v-model="newItem.name"
+            placeholder="Name, z.B. dreiQBIK"
+          />
+          <span
+            @click="chooseIcon"
+            class="btn">
+            <icon
+              :name="newItem.icon || 'anchor'"
+              class="icon">
+            </icon>
+          </span>
+        </div>
         <input
           type="text"
           v-model="newItem.link"
@@ -154,11 +164,16 @@
         <input type="submit" value="Hinzufügen">
       </form>
     </div>
+    <Overlay
+      v-if="showIcons"
+      :activeColor="activeColor"
+      @setIcon="setIcon"></Overlay>
   </div>
 </template>
 
 <script>
 import 'vue-awesome/icons';
+import Overlay from "./Overlay";
 import Icon from 'vue-awesome/components/Icon';
 import draggable from 'vuedraggable';
 
@@ -171,6 +186,7 @@ export default {
   components: {
     Icon,
     draggable,
+    Overlay,
   },
 
   props: [
@@ -183,6 +199,7 @@ export default {
     return {
       blockHeading: 'Links',
       newItem: {},
+      activeColor: 'green',
       groupEditable: false,
       itemEditable: true,
       blockItems: [
@@ -190,7 +207,6 @@ export default {
           id: nextItemId++,
           type: 'heading',
           name: 'News',
-          icon: 'anchor',
         },
         {
           id: nextItemId++,
@@ -237,6 +253,7 @@ export default {
           name: 'windows'
         },
       ],
+      showIcons: false,
     };
   },
 
@@ -262,7 +279,6 @@ export default {
             id: nextItemId++,
             type: 'heading',
             name: trimmedName,
-            icon: 'anchor',
           });
         } else {
           return;
@@ -279,7 +295,7 @@ export default {
             id: nextItemId++,
             type: 'link',
             name: trimmedName,
-            icon: 'anchor',
+            icon: self.newItem.icon || 'anchor',
             link: trimmedLink,
           });
         } else {
@@ -317,6 +333,9 @@ export default {
       self.blockColors.filter(item => {
         return item.id === colorId;
       })[0].selected = true;
+
+      // save to data
+      self.activeColor = self.blockColors.filter(item => { return item.selected })[0].name;
     },
 
     getSelectedColor: function() {
@@ -335,6 +354,17 @@ export default {
         self.itemEditable = true;
         self.groupEditable = false;
       }
+    },
+
+    chooseIcon: function() {
+      var self = this;
+      self.showIcons = true;
+    },
+
+    setIcon: function(iconName) {
+      var self = this;
+      self.showIcons = false;
+      self.newItem.icon = iconName;
     },
   }
 
@@ -371,6 +401,14 @@ h3 {
   box-shadow: 1px 1px 10px -1px rgba(0, 0, 0, 0.1);
   position: relative;
 
+  &.isEditable {
+    min-height: 450px;
+
+    .block__handle {
+      cursor: move;
+    }
+  }
+
   &__content {
     padding: 1.5em;
 
@@ -388,19 +426,19 @@ h3 {
     display: flex;
 
     &.green {
-      background: linear-gradient(to bottom right, $c1-second 0%, darken($c1-second, 2%) 100%);
+      background-color: $c1-second;
     }
 
     &.blue {
-      background: linear-gradient(to bottom right, $c2-main 0%, darken($c2-main, 2%) 100%);
+      background-color: $c2-main;
     }
 
     &.yellow {
-      background: linear-gradient(to bottom right, $c1-fourth 0%, darken($c1-fourth, 2%) 100%);
+      background-color: $c1-fourth;
     }
 
     &.red {
-      background: linear-gradient(to bottom right, $c1-third 0%, darken($c1-third, 2%) 100%);
+      background-color: $c1-third;
     }
 
     input {
@@ -422,14 +460,11 @@ h3 {
       }
     }
   }
-
-  &__handle {
-    cursor: move;
-  }
 }
 
 h2 {
   font-size: 1.1rem;
+  flex-grow: 1;
 }
 
 h3 {
@@ -508,11 +543,10 @@ form {
     font-family: $f1-main;
     font-size: 0.9rem;
     font-weight: 300;
-    padding: 0.57em 0.9em;
+    padding: 0.5em 0.9em;
     margin-bottom: 0.5em;
     border: 1px solid $c1-grey;
     text-align: left;
-    width: 100%;
 
     &:focus {
       outline: 0;
@@ -526,20 +560,45 @@ form {
     }
   }
 
-  input[type="submit"] {
+  input[type="submit"],
+  .btn {
     color: $c-white;
     background-color: $c1-main;
     font-family: $f1-second;
-    border: 1px solid darken($c1-main, 5%);
+    border: 0;
     cursor: pointer;
+    font-size: 0.9rem;
     font-weight: bold;
     padding: 0.5em 1.7em;
     align-self: flex-start;
     margin-bottom: 0;
     width: auto;
+    box-shadow: 1px 1px 5px -1px rgba(0, 0, 0, 0.2);
+
+    &:focus {
+      outline: 0;
+      background-color: darken($c1-main, 10%);
+    }
 
     &:hover {
       background-color: darken($c1-main, 5%);
+    }
+  }
+
+  .btn {
+    display: flex;
+    align-items: center;
+    align-self: stretch;
+  }
+
+  div {
+    margin-bottom: 0.5em;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    input {
+      margin-bottom: 0;
     }
   }
 }
@@ -570,19 +629,19 @@ form {
     border: 3px solid $c-white;
 
     &--green {
-      background: linear-gradient(to bottom right, $c1-second 0%, darken($c1-second, 2%) 100%);
+      background: $c1-second;
     }
 
     &--blue {
-      background: linear-gradient(to bottom right, $c2-main 0%, darken($c2-main, 2%) 100%);
+      background-color: $c2-main;
     }
 
     &--yellow {
-      background: linear-gradient(to bottom right, $c1-fourth 0%, darken($c1-fourth, 2%) 100%);
+      background-color: $c1-fourth;
     }
 
     &--red {
-      background: linear-gradient(to bottom right, $c1-third 0%, darken($c1-third, 2%) 100%);
+      background-color: $c1-third;
     }
   }
 }
@@ -623,7 +682,8 @@ li {
 
   &--indicator {
     color: $c1-main;
-    margin-right: 0.6em;
+    margin-right: 1em;
+    min-width: 14px;
   }
 
   &-wrapper {
@@ -656,7 +716,11 @@ li {
     }
 
     &--red {
-      background: linear-gradient(to bottom right, $c1-third 0%, darken($c1-third, 2%) 100%);
+      background-color: $c1-third;
+
+      &:hover {
+        background-color: darken($c1-third, 5%);
+      }
     }
 
     &--light {
