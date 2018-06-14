@@ -1,6 +1,6 @@
 <template>
   <div
-    :class="{ isEditable: editable }"
+    :class="[{ isEditable: editable }, 'span-' + rowHeight]"
     class="block">
     <header
       :class="activeColor"
@@ -254,6 +254,7 @@ export default {
         },
       ],
       showIcons: false,
+      rowHeight: '1',
     };
   },
 
@@ -303,6 +304,9 @@ export default {
         }
       }
 
+      // adjust block height, if enough items were added
+      self.adjustRowHeight();
+
       // clear new item data
       self.newItem = {};
     },
@@ -314,6 +318,23 @@ export default {
       self.blockItems = self.blockItems.filter(item => {
         return item.id !== idToRemove;
       });
+
+      // adjust block height, if enough items were added
+      self.adjustRowHeight();
+    },
+
+    adjustRowHeight: function() {
+      const self = this;
+
+      // get number of items and set row height
+      const numberOfItems = self.blockItems.length;
+      if (numberOfItems < 10) {
+        self.rowHeight = '1';
+      } else if (numberOfItems >= 10 && numberOfItems < 20) {
+        self.rowHeight = '2';
+      } else {
+        self.rowHeight = '3';
+      }
     },
 
     changeColor: function(colorId) {
@@ -400,6 +421,8 @@ h3 {
   background-color: $c-white;
   box-shadow: 1px 1px 10px -1px rgba(0, 0, 0, 0.1);
   position: relative;
+  display: flex;
+  flex-direction: column;
 
   &.isEditable {
     min-height: 450px;
@@ -409,8 +432,28 @@ h3 {
     }
   }
 
+  &.span-1 {
+    grid-row: span 1;
+  }
+
+  &.span-2 {
+    grid-row: span 2;
+  }
+
+  &.span-3 {
+    grid-row: span 3;
+  }
+
   &__content {
     padding: 1.5em;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    flex-grow: 1;
+
+    ul {
+      flex-grow: 1;
+    }
 
     li {
       &:last-child {
