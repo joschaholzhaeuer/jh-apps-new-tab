@@ -11,3 +11,12 @@ new Vue({
   components: { App },
   template: '<App/>',
 });
+
+// new Vue({
+//   el: '#app',
+//   components: { App },
+//   template: '<App/>',
+//   render (createElement) {
+//     return createElement('div', this.message)
+//   }
+// }).$mount('#app');

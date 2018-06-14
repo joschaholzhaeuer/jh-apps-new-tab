@@ -87,6 +87,8 @@ module.exports = {
     fs: 'empty',
     net: 'empty',
     tls: 'empty',
-    child_process: 'empty'
+    child_process: 'empty',
+    // prevent webpack from injecting eval / new Function through global polyfill
+    // global: false
   }
 }

@@ -15,6 +15,7 @@
       </span>
       <input type="text"
         v-if="editable"
+        @keyup="saveHeading"
         v-model="blockHeading">
       <h2 v-else>{{ blockHeading }}</h2>
       <span
@@ -49,7 +50,6 @@
     <div class="block__content">
       <ul>
         <draggable
-          v-if="blockItems.length"
           v-model="blockItems"
           @start="drag = true"
           @end="drag = false"
@@ -202,27 +202,7 @@ export default {
       activeColor: 'green',
       groupEditable: false,
       itemEditable: true,
-      blockItems: [
-        {
-          id: nextItemId++,
-          type: 'heading',
-          name: 'News',
-        },
-        {
-          id: nextItemId++,
-          type: 'link',
-          name: 'Medium',
-          icon: 'anchor',
-          link: 'https://medium.com',
-        },
-        {
-          id: nextItemId++,
-          type: 'link',
-          name: 'Die Zeit',
-          icon: 'anchor',
-          link: 'https://zeit.de',
-        },
-      ],
+      blockItems: [],
       blockColors: [
         {
           id: 1,
@@ -243,14 +223,6 @@ export default {
           id: 4,
           name: 'red',
           selected: false
-        },
-      ],
-      blockIcons: [
-        {
-          name: 'anchor'
-        },
-        {
-          name: 'windows'
         },
       ],
       showIcons: false,
@@ -281,6 +253,15 @@ export default {
             type: 'heading',
             name: trimmedName,
           });
+
+          // save to chrome storage
+          self.saveToStorage({
+            storedBlock: {
+              id: self.block.id,
+              blockItems: self.blockItems
+            }
+          });
+
         } else {
           return;
         }
@@ -299,6 +280,15 @@ export default {
             icon: self.newItem.icon || 'anchor',
             link: trimmedLink,
           });
+
+          // save to chrome storage
+          self.saveToStorage({
+            storedBlock: {
+              id: self.block.id,
+              blockItems: self.blockItems
+            }
+          });
+
         } else {
           return;
         }
@@ -321,6 +311,14 @@ export default {
 
       // adjust block height, if enough items were added
       self.adjustRowHeight();
+
+      // save to chrome storage
+      self.saveToStorage({
+        storedBlock: {
+          id: self.block.id,
+          blockItems: self.blockItems
+        }
+      });
     },
 
     adjustRowHeight: function() {
@@ -335,6 +333,9 @@ export default {
       } else {
         self.rowHeight = '3';
       }
+
+      // save to chrome storage
+      // self.saveToStorage(rowHeight, self.rowHeight);
     },
 
     changeColor: function(colorId) {
@@ -357,6 +358,9 @@ export default {
 
       // save to data
       self.activeColor = self.blockColors.filter(item => { return item.selected })[0].name;
+
+      // save to chrome storage
+      // self.saveToStorage(activeColor, self.activeColor);
     },
 
     getSelectedColor: function() {
@@ -387,8 +391,62 @@ export default {
       self.showIcons = false;
       self.newItem.icon = iconName;
     },
-  }
 
+    saveHeading: function() {
+      var self = this;
+      // self.saveToStorage(blockHeading, self.blockHeading);
+    },
+
+    getFromStorage: function(item) {
+      var self = this;
+      try {
+        chrome.storage.sync.get(item, function(result) {
+          // console.log('Value is set to ' + self.blocks);
+          return result;
+        });
+      } catch (error) {
+        console.log(error);
+        return false;
+      }
+    },
+
+    saveToStorage: function(object) {
+      var self = this;
+      chrome.storage.sync.set(object, function() {
+        // console.log('Value is set to ' + self.blocks);
+      });
+    },
+
+    getData: function() {
+      var self = this;
+
+      // get data from chrome storage
+      // console.log(self.getFromStorage('blockHeading'));
+      // self.blockHeading = self.getFromStorage('blockHeading');
+      try {
+        chrome.storage.sync.get('blocks', function(result) {
+          // console.log('Value is ' + result.blockItems);
+          if (result.blocks !== undefined) {
+            console.log(result);
+            console.log(result.blocks);
+            console.log(result.blocks.id);
+            console.log(self.block.id);
+            console.log(result.blocks.blockItems);
+            // loop
+            self.blockItems = result.blocks.blockItems;
+          }
+        });
+
+      } catch (error) {
+        console.log(error);
+      }
+    },
+  },
+
+  mounted() {
+    var self = this;
+    self.getData();
+  }
 };
 </script>
 

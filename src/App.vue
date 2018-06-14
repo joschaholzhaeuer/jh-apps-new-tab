@@ -80,18 +80,57 @@ export default {
   methods: {
 
     toggleEditable: function() {
-      this.editable = !this.editable;
+      var self = this;
+      self.editable = !self.editable;
     },
 
     addBlock: function() {
-      this.blocks.push({
+      var self = this;
+      self.blocks.push({
         id: nextBlockId++
       });
+
+      // save to chrome storage
+      self.saveToStorage({blocks: self.blocks});
     },
 
     deleteBlock: function(index) {
-      this.blocks.splice(index, 1);
-    }
+      var self = this;
+      self.blocks.splice(index, 1);
+
+      // save to chrome storage
+      self.saveToStorage({blocks: self.blocks});
+    },
+
+    saveToStorage: function(object) {
+      var self = this;
+
+      // save to chrome storage
+      chrome.storage.sync.set(object, function() {
+        // console.log('Value is set to ' + self.blocks);
+      });
+    },
+
+    getData: function() {
+      var self = this;
+
+      // get data from chrome storage
+      try {
+        chrome.storage.sync.get('blocks', function(result) {
+          // console.log('Value is ' + result.blocks);
+          console.log(result.blocks);
+          self.blocks = result.blocks;
+        });
+
+      } catch (error) {
+        console.log(error);
+      }
+    },
+  },
+
+  mounted() {
+    var self = this;
+    self.getData();
   }
 };
 </script>
