@@ -2,8 +2,7 @@
   <div id="app">
     <draggable
       v-model="blocks"
-      @start="drag=true"
-      @end="drag=false"
+      @end="saveData"
       @change="saveData"
       :options="{ disabled: editable ? false : true, handle: '.block__handle' }"
       class="grid">
@@ -31,8 +30,8 @@
     <button
       @click="toggleEditable"
       class="btn-settings">
-      <span v-if="editable">Speichern</span>
-      <span v-else>Bearbeiten</span>
+      <span v-if="editable">Save</span>
+      <span v-else>Edit</span>
       <icon
         v-if="editable"
         name="check"
@@ -40,7 +39,7 @@
       </icon>
       <icon
         v-else
-        name="cog"
+        name="cogs"
         class="icon">
       </icon>
     </button>
@@ -82,7 +81,7 @@ export default {
     addBlock: function() {
       const self = this;
       self.blocks.push({
-        id: self.blocks.length
+        id: self.generateUniqueId()
       });
 
       // save to chrome storage
@@ -97,8 +96,16 @@ export default {
       self.saveData();
     },
 
+    generateUniqueId: function() {
+      return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+      });
+    },
+
     saveData: function() {
       const self = this;
+      // console.log(self.blocks);
       self.saveToStorage({blocks: self.blocks});
     },
 
@@ -277,6 +284,7 @@ body {
   cursor: pointer;
   box-shadow: 1px 1px 10px -1px rgba(0, 0, 0, 0.1);
   z-index: 10;
+  animation: fadein 0.1s ease-in;
 
   &:focus {
     outline: 0;
@@ -324,6 +332,15 @@ body {
     height: 25px;
     max-width: 100%;
     max-height: 100%;
+  }
+}
+
+@keyframes fadein {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
   }
 }
 </style>

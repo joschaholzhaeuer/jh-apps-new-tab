@@ -16,6 +16,7 @@
       <input type="text"
         v-if="editable"
         @keyup="saveHeading"
+        placeholder="Heading"
         v-model="blockHeading">
       <h2 v-else>{{ blockHeading }}</h2>
       <span
@@ -51,9 +52,9 @@
       <ul>
         <draggable
           v-model="blockItems"
-          v-if="blockItems"
-          @start="drag = true"
-          @end="drag = false"
+          v-if="blockItems.length"
+          @move="saveData"
+          @change="saveData"
           :options="{
             group: 'block',
             disabled: editable ? false : true,
@@ -115,7 +116,7 @@
             </div>
           </li>
         </draggable>
-        <p v-else>No links entered yet. Start adding your favorite links and websites!</p>
+        <p v-else>No links saved yet. Start adding your favorite links and websites!</p>
       </ul>
       <div
         v-if="editable"
@@ -127,7 +128,7 @@
         <span
           @click="switchTabs('heading')"
           :class="{ 'is-active': groupEditable }"
-          class="tab__item">Gruppe</span>
+          class="tab__item">Group</span>
       </div>
       <form
         v-if="editable && itemEditable"
@@ -136,7 +137,7 @@
           <input
             type="text"
             v-model="newItem.name"
-            placeholder="Name, z.B. dreiQBIK"
+            placeholder="Name, e.g. dreiQBIK"
           />
           <span
             @click="chooseIcon"
@@ -150,9 +151,9 @@
         <input
           type="text"
           v-model="newItem.link"
-          placeholder="Link, z.B. https://dreiqbik.de"
+          placeholder="Link, e.g. https://dreiqbik.de"
         />
-        <input type="submit" value="Hinzufügen">
+        <input type="submit" value="Add">
       </form>
       <form
         v-if="editable && groupEditable"
@@ -162,7 +163,7 @@
           v-model="newItem.name"
           placeholder="Name"
         />
-        <input type="submit" value="Hinzufügen">
+        <input type="submit" value="Add">
       </form>
     </div>
     <Overlay
@@ -244,7 +245,7 @@ export default {
 
           // add new item
           self.blockItems.push({
-            id: self.blockItems.length + 1,
+            id: self.generateUniqueId(),
             type: 'heading',
             name: trimmedName,
           });
@@ -264,7 +265,7 @@ export default {
 
           // add new item
           self.blockItems.push({
-            id: self.blockItems.length + 1,
+            id: self.generateUniqueId(),
             type: 'link',
             name: trimmedName,
             icon: self.newItem.icon || 'anchor',
@@ -372,6 +373,13 @@ export default {
       self.newItem.icon = iconName;
     },
 
+    generateUniqueId: function() {
+      return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+      });
+    },
+
     saveHeading: function() {
       const self = this;
       self.saveData();
@@ -382,6 +390,8 @@ export default {
       let allBlocks;
       let currentBlock;
       let allBlocksUpdated;
+
+      // console.log('saved');
 
       // get current block from storage, if it already exists
       try {
@@ -493,6 +503,7 @@ h3 {
   position: relative;
   display: flex;
   flex-direction: column;
+  animation: fadein 0.1s ease-in;
 
   &.isEditable {
     min-height: 450px;
@@ -530,6 +541,11 @@ h3 {
         padding-bottom: 0;
       }
     }
+
+    p {
+      color: $c1-grey;
+      text-align: center;
+    }
   }
 
   &__header {
@@ -566,6 +582,10 @@ h3 {
       text-align: center;
       padding: 0;
       width: 100%;
+
+      &::placeholder {
+        color: rgba($c-white, 0.3);
+      }
 
       &:focus {
         outline: 0;
