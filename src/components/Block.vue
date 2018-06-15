@@ -1,12 +1,12 @@
 <template>
   <div
-    :class="[{ isEditable: editable }, 'span-' + rowHeight]"
+    :class="[{ isEditable: globalEditable && blockEditable }, 'span-' + rowHeight]"
     class="block">
     <header
       :class="activeColor"
       class="block__header block__handle">
       <span
-        v-if="editable"
+        v-if="globalEditable"
         class="icon-wrapper icon-wrapper--drag handle">
         <icon
           name="arrows"
@@ -14,13 +14,15 @@
         </icon>
       </span>
       <input type="text"
-        v-if="editable"
+        v-if="globalEditable && blockEditable"
         @keyup="saveHeading"
         placeholder="Heading"
         v-model="blockHeading">
-      <h2 v-else>{{ blockHeading }}</h2>
+      <h2
+        v-else
+        :class="{ isCentered: globalEditable }">{{ blockHeading }}</h2>
       <span
-        v-if="editable && !showIcons"
+        v-if="globalEditable && blockEditable && !showIcons"
         @click="$emit('deleteBlock', index)"
         class="icon-wrapper icon-wrapper--close icon-wrapper--red">
         <icon
@@ -29,7 +31,7 @@
         </icon>
       </span>
       <div
-        v-if="editable"
+        v-if="globalEditable && blockEditable"
         class="colors">
         <ul>
           <li
@@ -57,7 +59,7 @@
           @change="saveData"
           :options="{
             group: 'block',
-            disabled: editable ? false : true,
+            disabled: globalEditable && blockEditable ? false : true,
             handle: '.handle'
           }">
           <li
@@ -65,7 +67,7 @@
             :key="item.id"
             >
             <span
-              v-if="editable"
+              v-if="globalEditable && blockEditable"
               class="icon-wrapper icon-wrapper--light handle">
               <icon
                 name="arrows"
@@ -76,11 +78,11 @@
               v-if="item.type === 'heading'"
               class="section">
               <input type="text"
-                v-if="editable"
+                v-if="globalEditable && blockEditable"
                 v-model="item.name"
                 class="section__input">
               <span
-                v-if="editable"
+                v-if="globalEditable && blockEditable"
                 @click="removeItem(item.id)"
                 class="icon-wrapper">
                 <icon
@@ -98,14 +100,14 @@
                 :name="item.icon">
               </icon>
               <span
-                v-if="editable"
+                v-if="globalEditable && blockEditable"
                 class="link">{{ item.name }}</span>
               <a
                 v-else
                 :href="item.link"
                 class="link">{{ item.name }}</a>
               <span
-                v-if="editable"
+                v-if="globalEditable && blockEditable"
                 @click="removeItem(item.id)"
                 class="icon-wrapper">
                 <icon
@@ -119,7 +121,7 @@
         <p v-else>No links saved yet. Start adding your favorite links and websites!</p>
       </ul>
       <div
-        v-if="editable"
+        v-if="globalEditable && blockEditable"
         class="tab">
         <span
           @click="switchTabs('item')"
@@ -131,7 +133,7 @@
           class="tab__item">Group</span>
       </div>
       <form
-        v-if="editable && itemEditable"
+        v-if="globalEditable && blockEditable && itemEditable"
         @submit.prevent="addItem('link')">
         <div>
           <input
@@ -156,7 +158,7 @@
         <input type="submit" value="Add">
       </form>
       <form
-        v-if="editable && groupEditable"
+        v-if="globalEditable && blockEditable && groupEditable"
         @submit.prevent="addItem('heading')">
         <input
           type="text"
@@ -166,8 +168,26 @@
         <input type="submit" value="Add">
       </form>
     </div>
+    <span
+      v-if="globalEditable && !showIcons && !blockEditable"
+      @click="blockEditable = !blockEditable"
+      class="icon-wrapper icon-wrapper--edit">
+      <icon
+        name="edit"
+        class="icon">
+      </icon>
+    </span>
+    <span
+      v-if="globalEditable && !showIcons && blockEditable"
+      @click="blockEditable = !blockEditable"
+      class="icon-wrapper icon-wrapper--edit">
+      <icon
+        name="check"
+        class="icon">
+      </icon>
+    </span>
     <Overlay
-      v-if="editable && showIcons"
+      v-if="globalEditable && blockEditable && showIcons"
       :activeColor="activeColor"
       @setIcon="setIcon"></Overlay>
   </div>
@@ -190,7 +210,7 @@ export default {
   },
 
   props: [
-    'editable',
+    'globalEditable',
     'index',
     'block',
   ],
@@ -198,6 +218,7 @@ export default {
   data() {
     return {
       id: this.block.id,
+      blockEditable: false,
       blockHeading: '',
       newItem: {},
       activeColor: 'green',
@@ -407,6 +428,7 @@ export default {
             currentBlock.activeColor = self.activeColor;
             currentBlock.blockItems = self.blockItems;
             currentBlock.rowHeight = self.rowHeight;
+            currentBlock.blockEditable = false;
 
           // otherwise create it
           } else {
@@ -598,6 +620,12 @@ h3 {
 h2 {
   font-size: 1.1rem;
   flex-grow: 1;
+  min-height: 24px;
+  margin: 1px 0 1px;
+
+  &.isCentered {
+    margin-right: 39px;
+  }
 }
 
 h3 {
@@ -836,6 +864,12 @@ li {
     &--close {
       position: absolute;
       top: -10px;
+      right: -10px;
+    }
+
+    &--edit {
+      position: absolute;
+      bottom: -10px;
       right: -10px;
     }
 

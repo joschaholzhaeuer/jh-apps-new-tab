@@ -8,7 +8,7 @@
       class="grid">
       <Block
         v-for="(block, index) in blocks"
-        :editable="editable"
+        :globalEditable="editable"
         :block="block"
         :index="index"
         :key="block.id"
