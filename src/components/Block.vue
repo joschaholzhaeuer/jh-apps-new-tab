@@ -1,6 +1,6 @@
 <template>
   <div
-    :class="[{ isEditable: globalEditable && blockEditable }, 'span-' + rowHeight]"
+    :class="[{ isGlobalEditable: globalEditable }, { isEditable: blockEditable }, 'span-' + rowHeight]"
     class="block">
     <header
       :class="activeColor"
@@ -529,6 +529,9 @@ h3 {
 
   &.isEditable {
     min-height: 450px;
+  }
+
+  &.isGlobalEditable {
 
     .block__handle {
       cursor: move;
