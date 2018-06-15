@@ -51,6 +51,7 @@
       <ul>
         <draggable
           v-model="blockItems"
+          v-if="blockItems"
           @start="drag = true"
           @end="drag = false"
           :options="{
@@ -177,8 +178,6 @@ import Overlay from "./Overlay";
 import Icon from 'vue-awesome/components/Icon';
 import draggable from 'vuedraggable';
 
-let nextItemId = 1;
-
 export default {
 
   name: 'Block',
@@ -197,7 +196,8 @@ export default {
 
   data() {
     return {
-      blockHeading: 'Links',
+      id: this.block.id,
+      blockHeading: '',
       newItem: {},
       activeColor: 'green',
       groupEditable: false,
@@ -232,11 +232,6 @@ export default {
 
   methods: {
 
-    toggleEditable: function() {
-      const self = this;
-      self.editable = !self.editable;
-    },
-
     addItem: function(type) {
       const self = this;
       let trimmedName;
@@ -249,18 +244,13 @@ export default {
 
           // add new item
           self.blockItems.push({
-            id: nextItemId++,
+            id: self.blockItems.length + 1,
             type: 'heading',
             name: trimmedName,
           });
 
           // save to chrome storage
-          self.saveToStorage({
-            storedBlock: {
-              id: self.block.id,
-              blockItems: self.blockItems
-            }
-          });
+          self.saveData();
 
         } else {
           return;
@@ -274,7 +264,7 @@ export default {
 
           // add new item
           self.blockItems.push({
-            id: nextItemId++,
+            id: self.blockItems.length + 1,
             type: 'link',
             name: trimmedName,
             icon: self.newItem.icon || 'anchor',
@@ -282,12 +272,7 @@ export default {
           });
 
           // save to chrome storage
-          self.saveToStorage({
-            storedBlock: {
-              id: self.block.id,
-              blockItems: self.blockItems
-            }
-          });
+          self.saveData();
 
         } else {
           return;
@@ -313,12 +298,7 @@ export default {
       self.adjustRowHeight();
 
       // save to chrome storage
-      self.saveToStorage({
-        storedBlock: {
-          id: self.block.id,
-          blockItems: self.blockItems
-        }
-      });
+      self.saveData();
     },
 
     adjustRowHeight: function() {
@@ -335,7 +315,7 @@ export default {
       }
 
       // save to chrome storage
-      // self.saveToStorage(rowHeight, self.rowHeight);
+      self.saveData();
     },
 
     changeColor: function(colorId) {
@@ -360,7 +340,7 @@ export default {
       self.activeColor = self.blockColors.filter(item => { return item.selected })[0].name;
 
       // save to chrome storage
-      // self.saveToStorage(activeColor, self.activeColor);
+      self.saveData();
     },
 
     getSelectedColor: function() {
@@ -382,69 +362,101 @@ export default {
     },
 
     chooseIcon: function() {
-      var self = this;
+      const self = this;
       self.showIcons = true;
     },
 
     setIcon: function(iconName) {
-      var self = this;
+      const self = this;
       self.showIcons = false;
       self.newItem.icon = iconName;
     },
 
     saveHeading: function() {
-      var self = this;
-      // self.saveToStorage(blockHeading, self.blockHeading);
+      const self = this;
+      self.saveData();
     },
 
-    getFromStorage: function(item) {
-      var self = this;
+    saveData: function() {
+      const self = this;
+      let allBlocks;
+      let currentBlock;
+      let allBlocksUpdated;
+
+      // get current block from storage, if it already exists
       try {
-        chrome.storage.sync.get(item, function(result) {
-          // console.log('Value is set to ' + self.blocks);
-          return result;
+        chrome.storage.sync.get('blocks', result => {
+          allBlocks = result.blocks;
+          currentBlock = result.blocks.filter(item => {
+            return item.id === self.id;
+          })[0];
+
+          // check if block was already saved (exists) and add new heading
+          if (currentBlock !== undefined) {
+            currentBlock.blockHeading = self.blockHeading;
+            currentBlock.activeColor = self.activeColor;
+            currentBlock.blockItems = self.blockItems;
+            currentBlock.rowHeight = self.rowHeight;
+
+          // otherwise create it
+          } else {
+            currentBlock = self.$data;
+          }
+
+          // add new block data to existing data
+          const blockIndex = allBlocks.indexOf(self.id);
+          if (blockIndex !== -1) {
+            allBlocks[blockIndex] = currentBlock;
+          }
+
+          // save new block to storage
+          self.saveToStorage({blocks: allBlocks});
         });
+
       } catch (error) {
-        console.log(error);
-        return false;
+        console.log('saving failed')
       }
     },
 
     saveToStorage: function(object) {
-      var self = this;
-      chrome.storage.sync.set(object, function() {
-        // console.log('Value is set to ' + self.blocks);
-      });
+      const self = this;
+      try {
+        chrome.storage.sync.set(object);
+
+      } catch (error) {
+        console.log('Block saving failed: ' + error);
+      }
     },
 
     getData: function() {
-      var self = this;
+      const self = this;
+      let currentBlock;
 
-      // get data from chrome storage
-      // console.log(self.getFromStorage('blockHeading'));
-      // self.blockHeading = self.getFromStorage('blockHeading');
+      // get data of current block from chrome storage
       try {
-        chrome.storage.sync.get('blocks', function(result) {
-          // console.log('Value is ' + result.blockItems);
-          if (result.blocks !== undefined) {
-            console.log(result);
-            console.log(result.blocks);
-            console.log(result.blocks.id);
-            console.log(self.block.id);
-            console.log(result.blocks.blockItems);
-            // loop
-            self.blockItems = result.blocks.blockItems;
+        chrome.storage.sync.get('blocks', result => {
+          // console.log(result.blocks);
+          currentBlock = result.blocks.filter(item => {
+            return item.id === self.id;
+          })[0];
+
+          // override initial local data with data from previously saved block
+          if (currentBlock !== undefined) {
+            self.blockHeading = currentBlock.blockHeading || self.blockHeading;
+            self.activeColor = currentBlock.activeColor || self.activeColor;
+            self.blockItems = currentBlock.blockItems || self.blockItems;
+            self.rowHeight = currentBlock.rowHeight || self.rowHeight;
           }
         });
 
       } catch (error) {
-        console.log(error);
+        console.log('getting data failed');
       }
     },
   },
 
-  mounted() {
-    var self = this;
+  created() {
+    const self = this;
     self.getData();
   }
 };

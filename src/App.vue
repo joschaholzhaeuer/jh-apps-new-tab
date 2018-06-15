@@ -4,6 +4,7 @@
       v-model="blocks"
       @start="drag=true"
       @end="drag=false"
+      @change="saveData"
       :options="{ disabled: editable ? false : true, handle: '.block__handle' }"
       class="grid">
       <Block
@@ -54,8 +55,6 @@ import Block from "./components/Block";
 import Icon from 'vue-awesome/components/Icon';
 import draggable from 'vuedraggable';
 
-let nextBlockId = 1;
-
 export default {
 
   name: "App",
@@ -68,11 +67,7 @@ export default {
 
   data() {
     return {
-      blocks: [
-        {
-          id: nextBlockId++
-        }
-      ],
+      blocks: [],
       editable: false
     };
   },
@@ -80,56 +75,67 @@ export default {
   methods: {
 
     toggleEditable: function() {
-      var self = this;
+      const self = this;
       self.editable = !self.editable;
     },
 
     addBlock: function() {
-      var self = this;
+      const self = this;
       self.blocks.push({
-        id: nextBlockId++
+        id: self.blocks.length
       });
 
       // save to chrome storage
-      self.saveToStorage({blocks: self.blocks});
+      self.saveData();
     },
 
     deleteBlock: function(index) {
-      var self = this;
+      const self = this;
       self.blocks.splice(index, 1);
 
       // save to chrome storage
+      self.saveData();
+    },
+
+    saveData: function() {
+      const self = this;
       self.saveToStorage({blocks: self.blocks});
     },
 
     saveToStorage: function(object) {
-      var self = this;
+      const self = this;
+      try {
+        chrome.storage.sync.set(object);
 
-      // save to chrome storage
-      chrome.storage.sync.set(object, function() {
-        // console.log('Value is set to ' + self.blocks);
-      });
+      } catch (error) {
+        console.log('Blocks saving failed: ' + error);
+      }
     },
 
     getData: function() {
-      var self = this;
+      const self = this;
 
       // get data from chrome storage
       try {
-        chrome.storage.sync.get('blocks', function(result) {
-          // console.log('Value is ' + result.blocks);
-          console.log(result.blocks);
-          self.blocks = result.blocks;
+        chrome.storage.sync.get('blocks', result => {
+          if (result.blocks !== undefined && result.blocks.length) {
+            self.blocks = result.blocks;
+
+          // no blocks there yet
+          } else {
+            console.log('no blocks there yet');
+            self.editable = true;
+          }
         });
 
       } catch (error) {
-        console.log(error);
+        console.log('getData failed: ' + error);
       }
     },
   },
 
-  mounted() {
-    var self = this;
+  created() {
+    const self = this;
     self.getData();
   }
 };
@@ -167,6 +173,7 @@ $f1-second: 'Open Sans', 'Helvetica', Arial, sans-serif;
 }
 
 body {
+  font-size: 1rem;
   margin: 0;
   background-color: $c2-grey;
 }
