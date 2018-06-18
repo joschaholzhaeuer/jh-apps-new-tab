@@ -238,7 +238,7 @@ $c1-grey: #d7dfe9;
 $c2-grey: #eaf0f6;
 $c-white: #fff;
 
-$c1-main: #afb8c2;
+$c1-main: #a1a9b3;
 $c2-main: #427fb9;
 $c1-second: #42b983;
 $c1-third: #ee6161;

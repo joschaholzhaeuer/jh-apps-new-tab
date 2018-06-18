@@ -136,11 +136,6 @@
         v-if="globalEditable && blockEditable && itemEditable"
         @submit.prevent="addItem('link'); triggerDataUpdate();">
         <div>
-          <input
-            type="text"
-            v-model="newItem.name"
-            placeholder="Name, e.g. dreiQBIK"
-          />
           <span
             @click="chooseIcon"
             class="btn">
@@ -149,6 +144,11 @@
               class="icon">
             </icon>
           </span>
+          <input
+            type="text"
+            v-model="newItem.name"
+            placeholder="Name, e.g. dreiQBIK"
+          />
         </div>
         <input
           type="text"
@@ -456,7 +456,7 @@ $c1-grey: #d7dfe9;
 $c2-grey: #eaf0f6;
 $c-white: #fff;
 
-$c1-main: #afb8c2;
+$c1-main: #a1a9b3;
 $c2-main: #427fb9;
 $c1-second: #42b983;
 $c1-third: #ee6161;
@@ -598,6 +598,18 @@ h3 {
 
 .section {
 
+  &:hover {
+
+    .icon--indicator {
+      color: darken($c1-main, 10%);
+    }
+
+    a {
+      color: darken($c1-main, 10%);
+      text-decoration: underline;
+    }
+  }
+
   &__header {
     display: flex;
     justify-content: space-between;
@@ -666,6 +678,7 @@ form {
     margin-bottom: 0.5em;
     border: 1px solid $c1-grey;
     text-align: left;
+    flex-grow: 1;
 
     &:focus {
       outline: 0;
@@ -708,6 +721,9 @@ form {
     display: flex;
     align-items: center;
     align-self: stretch;
+    padding: 0.5em 0.7em;
+    // box-shadow: none;
+    margin-right: 0.5em;
   }
 
   div {
