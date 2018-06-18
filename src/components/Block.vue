@@ -15,14 +15,13 @@
       </span>
       <input type="text"
         v-if="globalEditable && blockEditable"
-        @keyup="saveHeading"
         placeholder="Heading"
         v-model="blockHeading">
       <h2
         v-else
         :class="{ isCentered: globalEditable }">{{ blockHeading }}</h2>
       <span
-        v-if="globalEditable && blockEditable && !showIcons"
+        v-if="globalEditable && !showIcons"
         @click="$emit('deleteBlock', index)"
         class="icon-wrapper icon-wrapper--close icon-wrapper--red">
         <icon
@@ -55,10 +54,11 @@
         <draggable
           v-model="blockItems"
           v-if="blockItems.length"
-          @move="saveData"
-          @change="saveData"
+          @add="triggerDataUpdate"
+          @remove="triggerDataUpdate"
+          @end="triggerDataUpdate"
           :options="{
-            group: 'block',
+            group: 'blockList',
             disabled: globalEditable && blockEditable ? false : true,
             handle: '.handle'
           }">
@@ -134,7 +134,7 @@
       </div>
       <form
         v-if="globalEditable && blockEditable && itemEditable"
-        @submit.prevent="addItem('link')">
+        @submit.prevent="addItem('link'); triggerDataUpdate();">
         <div>
           <input
             type="text"
@@ -169,8 +169,8 @@
       </form>
     </div>
     <span
-      v-if="globalEditable && !showIcons && !blockEditable"
-      @click="blockEditable = !blockEditable"
+      v-if="globalEditable && !blockEditable && !showIcons"
+      @click="blockEditable = true"
       class="icon-wrapper icon-wrapper--edit">
       <icon
         name="edit"
@@ -178,8 +178,8 @@
       </icon>
     </span>
     <span
-      v-if="globalEditable && !showIcons && blockEditable"
-      @click="blockEditable = !blockEditable"
+      v-if="globalEditable && blockEditable && !showIcons"
+      @click="blockEditable = false;"
       class="icon-wrapper icon-wrapper--edit">
       <icon
         name="check"
@@ -218,7 +218,7 @@ export default {
   data() {
     return {
       id: this.block.id,
-      blockEditable: false,
+      blockEditable: this.block.blockEditable,
       blockHeading: '',
       newItem: {},
       activeColor: 'green',
@@ -271,9 +271,6 @@ export default {
             name: trimmedName,
           });
 
-          // save to chrome storage
-          self.saveData();
-
         } else {
           return;
         }
@@ -292,9 +289,6 @@ export default {
             icon: self.newItem.icon || 'anchor',
             link: trimmedLink,
           });
-
-          // save to chrome storage
-          self.saveData();
 
         } else {
           return;
@@ -318,9 +312,6 @@ export default {
 
       // adjust block height, if enough items were added
       self.adjustRowHeight();
-
-      // save to chrome storage
-      self.saveData();
     },
 
     adjustRowHeight: function() {
@@ -335,9 +326,6 @@ export default {
       } else {
         self.rowHeight = '3';
       }
-
-      // save to chrome storage
-      self.saveData();
     },
 
     changeColor: function(colorId) {
@@ -360,9 +348,6 @@ export default {
 
       // save to data
       self.activeColor = self.blockColors.filter(item => { return item.selected })[0].name;
-
-      // save to chrome storage
-      self.saveData();
     },
 
     getSelectedColor: function() {
@@ -401,95 +386,64 @@ export default {
       });
     },
 
-    saveHeading: function() {
-      const self = this;
-      self.saveData();
-    },
-
-    saveData: function() {
-      const self = this;
-      let allBlocks;
-      let currentBlock;
-      let allBlocksUpdated;
-
-      // console.log('saved');
-
-      // get current block from storage, if it already exists
-      try {
-        chrome.storage.sync.get('blocks', result => {
-          allBlocks = result.blocks;
-          currentBlock = result.blocks.filter(item => {
-            return item.id === self.id;
-          })[0];
-
-          // check if block was already saved (exists) and add new heading
-          if (currentBlock !== undefined) {
-            currentBlock.blockHeading = self.blockHeading;
-            currentBlock.activeColor = self.activeColor;
-            currentBlock.blockItems = self.blockItems;
-            currentBlock.rowHeight = self.rowHeight;
-            currentBlock.blockEditable = false;
-
-          // otherwise create it
-          } else {
-            currentBlock = self.$data;
-          }
-
-          // add new block data to existing data
-          const blockIndex = allBlocks.indexOf(self.id);
-          if (blockIndex !== -1) {
-            allBlocks[blockIndex] = currentBlock;
-          }
-
-          // save new block to storage
-          self.saveToStorage({blocks: allBlocks});
-        });
-
-      } catch (error) {
-        console.log('saving failed')
-      }
-    },
-
-    saveToStorage: function(object) {
-      const self = this;
-      try {
-        chrome.storage.sync.set(object);
-
-      } catch (error) {
-        console.log('Block saving failed: ' + error);
-      }
+    triggerDataUpdate: function() {
+      // console.log('edited')
+      this.$emit('updateBlocks', this.$data);
     },
 
     getData: function() {
       const self = this;
-      let currentBlock;
 
-      // get data of current block from chrome storage
-      try {
-        chrome.storage.sync.get('blocks', result => {
-          // console.log(result.blocks);
-          currentBlock = result.blocks.filter(item => {
-            return item.id === self.id;
-          })[0];
-
-          // override initial local data with data from previously saved block
-          if (currentBlock !== undefined) {
-            self.blockHeading = currentBlock.blockHeading || self.blockHeading;
-            self.activeColor = currentBlock.activeColor || self.activeColor;
-            self.blockItems = currentBlock.blockItems || self.blockItems;
-            self.rowHeight = currentBlock.rowHeight || self.rowHeight;
+      if (localStorage.getItem('blocks')) {
+        const allBlocks = JSON.parse(localStorage.getItem('blocks'));
+        allBlocks.forEach(item => {
+          if (item.id === self.id) {
+            self.blockHeading = item.blockHeading || self.blockHeading;
+            self.activeColor = item.activeColor || self.activeColor;
+            self.blockItems = item.blockItems || self.blockItems;
+            self.rowHeight = item.rowHeight || self.rowHeight;
+            self.blockEditable = item.blockEditable || self.blockEditable;
           }
         });
-
-      } catch (error) {
-        console.log('getting data failed');
       }
+
+      // let currentBlock;
+
+      // // get data of current block from chrome storage
+      // try {
+      //   chrome.storage.sync.get('blocks', result => {
+      //     // console.log(result.blocks);
+      //     currentBlock = result.blocks.filter(item => {
+      //       return item.id === self.id;
+      //     })[0];
+
+      //     // override initial local data with data from previously saved block
+      //     if (currentBlock !== undefined) {
+      //       self.blockHeading = currentBlock.blockHeading || self.blockHeading;
+      //       self.activeColor = currentBlock.activeColor || self.activeColor;
+      //       self.blockItems = currentBlock.blockItems || self.blockItems;
+      //       self.rowHeight = currentBlock.rowHeight || self.rowHeight;
+
+      //     } else {
+      //       console.log('no data yet')
+      //     }
+      //   });
+
+      // } catch (error) {
+      //   console.log('getting data failed');
+      // }
     },
   },
 
   created() {
     const self = this;
     self.getData();
+  },
+
+  watch: {
+    blockEditable: function() {
+      this.triggerDataUpdate();
+    }
   }
 };
 </script>
@@ -532,6 +486,7 @@ h3 {
   }
 
   &.isGlobalEditable {
+    margin-bottom: 1.5em;
 
     .block__handle {
       cursor: move;
@@ -603,7 +558,7 @@ h3 {
       font-size: 1.1rem;
       font-weight: bold;
       margin-bottom: 0;
-      margin-right: 39px;
+      margin-right: 40px;
       text-align: center;
       padding: 0;
       width: 100%;
@@ -627,7 +582,7 @@ h2 {
   margin: 1px 0 1px;
 
   &.isCentered {
-    margin-right: 39px;
+    margin-right: 40px;
   }
 }
 

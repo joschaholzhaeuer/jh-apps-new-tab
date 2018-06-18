@@ -2,8 +2,6 @@
   <div id="app">
     <draggable
       v-model="blocks"
-      @end="saveData"
-      @change="saveData"
       :options="{ disabled: editable ? false : true, handle: '.block__handle' }"
       class="grid">
       <Block
@@ -13,6 +11,7 @@
         :index="index"
         :key="block.id"
         @deleteBlock="deleteBlock"
+        @updateBlocks="updateBlocks"
       />
     </draggable>
     <button
@@ -28,7 +27,7 @@
       </span>
     </button>
     <button
-      @click="toggleEditable"
+      @click="toggleEditable()"
       class="btn-settings">
       <span v-if="editable">Save</span>
       <span v-else>Edit</span>
@@ -67,7 +66,7 @@ export default {
   data() {
     return {
       blocks: [],
-      editable: false
+      editable: false,
     };
   },
 
@@ -81,11 +80,12 @@ export default {
     addBlock: function() {
       const self = this;
       self.blocks.push({
-        id: self.generateUniqueId()
+        id: self.generateUniqueId(),
+        blockEditable: true,
       });
 
       // save to chrome storage
-      self.saveData();
+      // self.saveData();
     },
 
     deleteBlock: function(index) {
@@ -93,7 +93,22 @@ export default {
       self.blocks.splice(index, 1);
 
       // save to chrome storage
-      self.saveData();
+      // self.saveData();
+    },
+
+    updateBlocks: function(blockData) {
+      const self = this;
+      self.blocks.forEach(item => {
+        if (item.id === blockData.id) {
+          item.blockHeading = blockData.blockHeading;
+          item.activeColor = blockData.activeColor;
+          item.blockItems = blockData.blockItems;
+          item.rowHeight = blockData.rowHeight;
+        } else {
+          item.blockEditable = false;
+        }
+      });
+      localStorage.setItem('blocks', JSON.stringify(self.blocks));
     },
 
     generateUniqueId: function() {
@@ -103,40 +118,95 @@ export default {
       });
     },
 
-    saveData: function() {
-      const self = this;
-      // console.log(self.blocks);
-      self.saveToStorage({blocks: self.blocks});
-    },
+    // saveData: function(blockId, blockHeading, blockActiveColor, blockItems, rowHeight) {
+    //   const self = this;
+    //   let currentBlockId = blockId || null;
+    //   let currentBlockHeading = blockHeading || '';
+    //   let currentBlockActiveColor = blockActiveColor || 'green';
+    //   let currentBlockItems = blockItems || [];
+    //   let currentBlockRowHeight = rowHeight || 1;
 
-    saveToStorage: function(object) {
-      const self = this;
-      try {
-        chrome.storage.sync.set(object);
+    //   console.log(currentBlockId);
 
-      } catch (error) {
-        console.log('Blocks saving failed: ' + error);
-      }
-    },
+    //   if (currentBlockId !== null) {
+    //     let allBlocks;
+    //     let currentSavedBlock;
+    //     let allBlocksUpdated;
+
+    //     // get current block from storage, if it already exists
+    //     try {
+    //       chrome.storage.sync.get('blocks', result => {
+    //         allBlocks = result.blocks;
+    //         currentSavedBlock = result.blocks.filter(item => {
+    //           return item.id === currentBlockId;
+    //         })[0];
+
+    //         console.log(currentSavedBlock);
+
+    //         // check if block was already saved (exists) and add new data
+    //         if (currentSavedBlock !== undefined) {
+    //           currentSavedBlock.blockHeading = currentBlockHeading;
+    //           currentSavedBlock.activeColor = currentBlockActiveColor;
+    //           currentSavedBlock.blockItems = currentBlockItems;
+    //           currentSavedBlock.rowHeight = currentBlockRowHeight;
+    //           currentSavedBlock.blockEditable = false;
+
+    //         // otherwise create it
+    //         } else {
+    //           currentSavedBlock = {
+    //             blockHeading: currentBlockHeading,
+    //             activeColor: currentBlockActiveColor,
+    //             blockItems: currentBlockItems,
+    //             rowHeight: currentBlockRowHeight,
+    //             blockEditable: false,
+    //           };
+    //         }
+
+    //         console.log(currentSavedBlock);
+
+    //         // add new block data to existing data
+    //         const blockIndex = allBlocks.indexOf(currentBlockId);
+    //         if (blockIndex !== -1) {
+    //           allBlocks[blockIndex] = currentSavedBlock;
+    //         }
+
+    //         console.log(allBlocks);
+
+    //         // save new block to storage
+    //         self.saveToStorage({blocks: allBlocks});
+    //       });
+
+    //     } catch (error) {
+    //       console.log('getting failed')
+    //     }
+
+    //   } else {
+    //     self.saveToStorage({blocks: self.blocks});
+    //   }
+    // },
+
 
     getData: function() {
       const self = this;
 
       // get data from chrome storage
-      try {
-        chrome.storage.sync.get('blocks', result => {
-          if (result.blocks !== undefined && result.blocks.length) {
-            self.blocks = result.blocks;
+      // try {
+      //   chrome.storage.sync.get('blocks', result => {
+      //     if (result.blocks !== undefined && result.blocks.length) {
+      //       self.blocks = result.blocks;
 
-          // no blocks there yet
-          } else {
-            console.log('no blocks there yet');
-            self.editable = true;
-          }
-        });
+      //     // no blocks there yet
+      //     } else {
+      //       console.log('no blocks there yet');
+      //       self.editable = true;
+      //     }
+      //   });
 
-      } catch (error) {
-        console.log('getData failed: ' + error);
+      // } catch (error) {
+      //   console.log('getData failed: ' + error);
+      // }
+      if (localStorage.getItem('blocks')) {
+        self.blocks = JSON.parse(localStorage.getItem('blocks'));
       }
     },
   },
@@ -144,6 +214,16 @@ export default {
   created() {
     const self = this;
     self.getData();
+  },
+
+  watch: {
+    blocks: {
+      handler() {
+        // console.log('blocks changed')
+        localStorage.setItem('blocks', JSON.stringify(this.blocks));
+      },
+      deep: true
+    }
   }
 };
 </script>
