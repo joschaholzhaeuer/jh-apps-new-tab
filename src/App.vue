@@ -83,17 +83,11 @@ export default {
         id: self.generateUniqueId(),
         blockEditable: true,
       });
-
-      // save to chrome storage
-      // self.saveData();
     },
 
     deleteBlock: function(index) {
       const self = this;
       self.blocks.splice(index, 1);
-
-      // save to chrome storage
-      // self.saveData();
     },
 
     updateBlocks: function(blockData) {
@@ -108,7 +102,16 @@ export default {
           item.blockEditable = false;
         }
       });
-      localStorage.setItem('blocks', JSON.stringify(self.blocks));
+
+      try {
+        chrome.storage.sync.set({blocks: self.blocks});
+      } catch (error) {
+        localStorage.setItem('blocks', JSON.stringify(self.blocks));
+      }
+    },
+
+    saveData: function() {
+      chrome.storage.sync.set({blocks: self.blocks});
     },
 
     generateUniqueId: function() {
@@ -118,95 +121,20 @@ export default {
       });
     },
 
-    // saveData: function(blockId, blockHeading, blockActiveColor, blockItems, rowHeight) {
-    //   const self = this;
-    //   let currentBlockId = blockId || null;
-    //   let currentBlockHeading = blockHeading || '';
-    //   let currentBlockActiveColor = blockActiveColor || 'green';
-    //   let currentBlockItems = blockItems || [];
-    //   let currentBlockRowHeight = rowHeight || 1;
-
-    //   console.log(currentBlockId);
-
-    //   if (currentBlockId !== null) {
-    //     let allBlocks;
-    //     let currentSavedBlock;
-    //     let allBlocksUpdated;
-
-    //     // get current block from storage, if it already exists
-    //     try {
-    //       chrome.storage.sync.get('blocks', result => {
-    //         allBlocks = result.blocks;
-    //         currentSavedBlock = result.blocks.filter(item => {
-    //           return item.id === currentBlockId;
-    //         })[0];
-
-    //         console.log(currentSavedBlock);
-
-    //         // check if block was already saved (exists) and add new data
-    //         if (currentSavedBlock !== undefined) {
-    //           currentSavedBlock.blockHeading = currentBlockHeading;
-    //           currentSavedBlock.activeColor = currentBlockActiveColor;
-    //           currentSavedBlock.blockItems = currentBlockItems;
-    //           currentSavedBlock.rowHeight = currentBlockRowHeight;
-    //           currentSavedBlock.blockEditable = false;
-
-    //         // otherwise create it
-    //         } else {
-    //           currentSavedBlock = {
-    //             blockHeading: currentBlockHeading,
-    //             activeColor: currentBlockActiveColor,
-    //             blockItems: currentBlockItems,
-    //             rowHeight: currentBlockRowHeight,
-    //             blockEditable: false,
-    //           };
-    //         }
-
-    //         console.log(currentSavedBlock);
-
-    //         // add new block data to existing data
-    //         const blockIndex = allBlocks.indexOf(currentBlockId);
-    //         if (blockIndex !== -1) {
-    //           allBlocks[blockIndex] = currentSavedBlock;
-    //         }
-
-    //         console.log(allBlocks);
-
-    //         // save new block to storage
-    //         self.saveToStorage({blocks: allBlocks});
-    //       });
-
-    //     } catch (error) {
-    //       console.log('getting failed')
-    //     }
-
-    //   } else {
-    //     self.saveToStorage({blocks: self.blocks});
-    //   }
-    // },
-
-
     getData: function() {
       const self = this;
+      try {
+        chrome.storage.sync.get('blocks', result => {
+          if (result.blocks !== undefined && result.blocks.length) self.blocks = result.blocks;
+        });
+      } catch (error) {
+        if (localStorage.getItem('blocks')) {
+          self.blocks = JSON.parse(localStorage.getItem('blocks'));
+        }
+      }
 
-      // get data from chrome storage
-      // try {
-      //   chrome.storage.sync.get('blocks', result => {
-      //     if (result.blocks !== undefined && result.blocks.length) {
-      //       self.blocks = result.blocks;
-
-      //     // no blocks there yet
-      //     } else {
-      //       console.log('no blocks there yet');
-      //       self.editable = true;
-      //     }
-      //   });
-
-      // } catch (error) {
-      //   console.log('getData failed: ' + error);
-      // }
-      if (localStorage.getItem('blocks')) {
-        self.blocks = JSON.parse(localStorage.getItem('blocks'));
+      if (self.blocks !== undefined && self.blocks.length === 0) {
+        self.editable = true;
       }
     },
   },
@@ -219,8 +147,17 @@ export default {
   watch: {
     blocks: {
       handler() {
+        const self = this;
         // console.log('blocks changed')
-        localStorage.setItem('blocks', JSON.stringify(this.blocks));
+        try {
+          chrome.storage.sync.set({blocks: self.blocks});
+        } catch (error) {
+          localStorage.setItem('blocks', JSON.stringify(self.blocks));
+        }
+
+        if (self.blocks !== undefined && self.blocks.length === 0) {
+          self.editable = true;
+        }
       },
       deep: true
     }

@@ -393,45 +393,35 @@ export default {
 
     getData: function() {
       const self = this;
-
-      if (localStorage.getItem('blocks')) {
-        const allBlocks = JSON.parse(localStorage.getItem('blocks'));
-        allBlocks.forEach(item => {
-          if (item.id === self.id) {
-            self.blockHeading = item.blockHeading || self.blockHeading;
-            self.activeColor = item.activeColor || self.activeColor;
-            self.blockItems = item.blockItems || self.blockItems;
-            self.rowHeight = item.rowHeight || self.rowHeight;
-            self.blockEditable = item.blockEditable || self.blockEditable;
+      try {
+        chrome.storage.sync.get('blocks', result => {
+          if (result.blocks !== undefined && result.blocks.length) {
+            const allBlocks = result.blocks;
+            allBlocks.forEach(item => {
+              if (item.id === self.id) {
+                self.blockHeading = item.blockHeading || self.blockHeading;
+                self.activeColor = item.activeColor || self.activeColor;
+                self.blockItems = item.blockItems || self.blockItems;
+                self.rowHeight = item.rowHeight || self.rowHeight;
+                self.blockEditable = item.blockEditable || self.blockEditable;
+              }
+            });
           }
         });
+      } catch (error) {
+        if (localStorage.getItem('blocks')) {
+          const allBlocks = JSON.parse(localStorage.getItem('blocks'));
+          allBlocks.forEach(item => {
+            if (item.id === self.id) {
+              self.blockHeading = item.blockHeading || self.blockHeading;
+              self.activeColor = item.activeColor || self.activeColor;
+              self.blockItems = item.blockItems || self.blockItems;
+              self.rowHeight = item.rowHeight || self.rowHeight;
+              self.blockEditable = item.blockEditable || self.blockEditable;
+            }
+          });
+        }
       }
-
-      // let currentBlock;
-
-      // // get data of current block from chrome storage
-      // try {
-      //   chrome.storage.sync.get('blocks', result => {
-      //     // console.log(result.blocks);
-      //     currentBlock = result.blocks.filter(item => {
-      //       return item.id === self.id;
-      //     })[0];
-
-      //     // override initial local data with data from previously saved block
-      //     if (currentBlock !== undefined) {
-      //       self.blockHeading = currentBlock.blockHeading || self.blockHeading;
-      //       self.activeColor = currentBlock.activeColor || self.activeColor;
-      //       self.blockItems = currentBlock.blockItems || self.blockItems;
-      //       self.rowHeight = currentBlock.rowHeight || self.rowHeight;
-
-      //     } else {
-      //       console.log('no data yet')
-      //     }
-      //   });
-
-      // } catch (error) {
-      //   console.log('getting data failed');
-      // }
     },
   },
 
