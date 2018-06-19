@@ -178,6 +178,7 @@
     <span
       v-if="globalEditable && !blockEditable && !showIcons"
       @click="blockEditable = true"
+      :class="activeColor"
       class="icon-wrapper icon-wrapper--edit">
       <icon
         name="edit"
@@ -187,6 +188,7 @@
     <span
       v-if="globalEditable && blockEditable && !showIcons"
       @click="blockEditable = false;"
+      :class="activeColor"
       class="icon-wrapper icon-wrapper--edit">
       <icon
         name="check"
@@ -196,7 +198,8 @@
     <Overlay
       v-if="globalEditable && blockEditable && showIcons"
       :activeColor="activeColor"
-      @setIcon="setIcon"></Overlay>
+      @setIcon="setIcon">
+    </Overlay>
   </div>
 </template>
 
@@ -860,6 +863,30 @@ li {
       position: absolute;
       bottom: -10px;
       right: -10px;
+
+      &.green {
+        &:hover {
+          background-color: $c1-second;
+        }
+      }
+
+      &.blue {
+        &:hover {
+          background-color: $c2-main;
+        }
+      }
+
+      &.red {
+        &:hover {
+          background-color: $c1-third;
+        }
+      }
+
+      &.yellow {
+        &:hover {
+          background-color: $c1-fourth;
+        }
+      }
     }
 
     &--drag {
