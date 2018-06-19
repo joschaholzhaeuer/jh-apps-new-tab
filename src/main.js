@@ -13,10 +13,10 @@ new Vue({
 });
 
 // new Vue({
-//   el: '#app',
-//   components: { App },
-//   template: '<App/>',
+//   // el: '#app',
+//   // components: { App },
+//   // template: '<App/>',
 //   render (createElement) {
-//     return createElement('div', this.message)
+//     return createElement('div', App);
 //   }
 // }).$mount('#app');

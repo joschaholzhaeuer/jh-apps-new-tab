@@ -138,10 +138,6 @@ export default {
           self.blocks = JSON.parse(localStorage.getItem('blocks'));
         }
       }
-
-      if (self.blocks !== undefined && self.blocks.length === 0) {
-        self.editable = true;
-      }
     },
   },
 
@@ -154,13 +150,12 @@ export default {
     blocks: {
       handler() {
         const self = this;
-        console.log('blocks changed blocks')
+        // console.log('blocks changed blocks')
         try {
           chrome.storage.sync.set({blocks: self.blocks});
         } catch (error) {
           localStorage.setItem('blocks', JSON.stringify(self.blocks));
         }
-
         if (self.blocks !== undefined && self.blocks.length === 0) {
           self.editable = true;
         }
@@ -170,15 +165,11 @@ export default {
     editable: {
       handler() {
         const self = this;
-        console.log('blocks changed editable')
+        // console.log('blocks changed editable')
         try {
           chrome.storage.sync.set({blocks: self.blocks});
         } catch (error) {
           localStorage.setItem('blocks', JSON.stringify(self.blocks));
-        }
-
-        if (self.blocks !== undefined && self.blocks.length === 0) {
-          self.editable = true;
         }
       },
     }
