@@ -320,7 +320,7 @@ button {
   font-family: $f1-second;
   border: 0;
   cursor: pointer;
-  font-size: 0.9rem;
+  font-size: 0.89rem;
   font-weight: bold;
   padding: 0.5em 1.7em;
   align-self: flex-start;

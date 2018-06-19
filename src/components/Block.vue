@@ -1,9 +1,9 @@
 <template>
   <div
-    :class="[{ isGlobalEditable: globalEditable }, { isEditable: blockEditable }, 'span-' + rowHeight]"
+    :class="[{ isGlobalEditable: globalEditable }, { isEditable: blockEditable }, { rounded: roundedCorners }, 'span-' + rowHeight]"
     class="block">
     <header
-      :class="activeColor"
+      :class="[activeColor, { rounded: roundedCorners }]"
       class="block__header block__handle">
       <span
         v-if="globalEditable"
@@ -221,6 +221,7 @@ export default {
 
   props: [
     'globalEditable',
+    'roundedCorners',
     'index',
     'block',
   ],
@@ -405,7 +406,7 @@ export default {
     getData: function() {
       const self = this;
       try {
-        chrome.storage.sync.get('blocks', result => {
+        chrome.storage.local.get('blocks', result => {
           if (result.blocks !== undefined && result.blocks.length) {
             const allBlocks = result.blocks;
             allBlocks.forEach(item => {
@@ -457,7 +458,7 @@ export default {
 <style scoped lang="scss">
 
 // colors
-$c-black: #2c3e50;
+$c-black: #293847;
 $c1-grey: #d7dfe9;
 $c2-grey: #eaf0f6;
 $c-white: #fff;
@@ -486,6 +487,10 @@ h3 {
   display: flex;
   flex-direction: column;
   animation: fadein 0.1s ease-in;
+
+  &.rounded {
+    border-radius: 10px;
+  }
 
   &.isEditable {
     min-height: 450px;
@@ -539,6 +544,10 @@ h3 {
     color: $c-white;
     padding: 1.3em 1.5em;
     display: flex;
+
+    &.rounded {
+      border-radius: 10px 10px 0 0;
+    }
 
     &.green {
       background-color: $c1-second;
@@ -596,7 +605,7 @@ h3 {
   color: $c1-main;
   margin-top: 1em;
   font-family: $f1-second;
-  font-size: 0.9rem;
+  font-size: 0.89rem;
   font-weight: 700;
   text-align: left;
   text-transform: uppercase;
@@ -635,7 +644,7 @@ h3 {
     background-color: transparent;
     border: 1px dashed $c1-grey;
     font-weight: bold;
-    font-size: 0.9rem;
+    font-size: 0.89rem;
     padding: 0;
     text-align: left;
     text-transform: uppercase;
@@ -664,7 +673,7 @@ h3 {
     border: 1px solid $c2-grey;
     border-bottom: 0;
     color: $c1-main;
-    font-size: 0.9rem;
+    font-size: 0.89rem;
     font-weight: bold;
     padding: 0.5em 2em;
     margin-right: 0.5em;
@@ -690,7 +699,7 @@ form {
   input {
     color: $c1-main;
     font-family: $f1-main;
-    font-size: 0.9rem;
+    font-size: 0.89rem;
     font-weight: 300;
     padding: 0.5em 0.9em;
     margin-bottom: 0.5em;
@@ -717,7 +726,7 @@ form {
     font-family: $f1-second;
     border: 0;
     cursor: pointer;
-    font-size: 0.9rem;
+    font-size: 0.89rem;
     font-weight: bold;
     padding: 0.5em 1.7em;
     align-self: flex-start;
@@ -931,7 +940,7 @@ a,
   display: block;
   color: $c1-main;
   font-family: $f1-main;
-  font-size: 0.9rem;
+  font-size: 0.89rem;
   font-weight: 300;
   text-decoration: none;
 }

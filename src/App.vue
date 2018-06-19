@@ -1,5 +1,5 @@
 <template>
-  <div id="app">
+  <div id="app" :class="[{rounded: roundedCorners}, {dark: bgColored}]">
     <draggable
       v-model="blocks"
       :options="{ disabled: editable ? false : true, handle: '.block__handle' }"
@@ -7,6 +7,7 @@
       <Block
         v-for="(block, index) in blocks"
         :globalEditable="editable"
+        :roundedCorners="roundedCorners"
         :block="block"
         :index="index"
         :key="block.id"
@@ -42,6 +43,15 @@
         class="icon">
       </icon>
     </button>
+    <button
+      v-if="editable"
+      @click="toggleColored()"
+      class="btn-settings btn-settings--2">
+      <icon
+        name="tint"
+        class="icon">
+      </icon>
+    </button>
     <footer
       v-if="editable"
       class="footer">
@@ -72,6 +82,8 @@ export default {
     return {
       blocks: [],
       editable: false,
+      bgColored: true,
+      roundedCorners: true,
     };
   },
 
@@ -80,6 +92,19 @@ export default {
     toggleEditable: function() {
       const self = this;
       self.editable = !self.editable;
+    },
+
+    toggleColored: function() {
+      const self = this;
+      self.bgColored = !self.bgColored;
+    },
+
+    adjustBgColor: function() {
+      if (this.bgColored) {
+        document.querySelector('body').style.backgroundColor = '#293847';
+      } else {
+        document.querySelector('body').style.backgroundColor = '#eaf0f6';
+      }
     },
 
     addBlock: function() {
@@ -110,14 +135,14 @@ export default {
       });
 
       try {
-        chrome.storage.sync.set({blocks: self.blocks});
+        chrome.storage.local.set({blocks: self.blocks});
       } catch (error) {
         localStorage.setItem('blocks', JSON.stringify(self.blocks));
       }
     },
 
     saveData: function() {
-      chrome.storage.sync.set({blocks: self.blocks});
+      chrome.storage.local.set({blocks: self.blocks});
     },
 
     generateUniqueId: function() {
@@ -130,7 +155,7 @@ export default {
     getData: function() {
       const self = this;
       try {
-        chrome.storage.sync.get('blocks', result => {
+        chrome.storage.local.get('blocks', result => {
           if (result.blocks !== undefined && result.blocks.length) self.blocks = result.blocks;
         });
       } catch (error) {
@@ -144,6 +169,7 @@ export default {
   created() {
     const self = this;
     self.getData();
+    self.adjustBgColor();
   },
 
   watch: {
@@ -152,7 +178,7 @@ export default {
         const self = this;
         // console.log('blocks changed blocks')
         try {
-          chrome.storage.sync.set({blocks: self.blocks});
+          chrome.storage.local.set({blocks: self.blocks});
         } catch (error) {
           localStorage.setItem('blocks', JSON.stringify(self.blocks));
         }
@@ -167,12 +193,17 @@ export default {
         const self = this;
         // console.log('blocks changed editable')
         try {
-          chrome.storage.sync.set({blocks: self.blocks});
+          chrome.storage.local.set({blocks: self.blocks});
         } catch (error) {
           localStorage.setItem('blocks', JSON.stringify(self.blocks));
         }
       },
-    }
+    },
+    bgColored: {
+      handler() {
+        this.adjustBgColor();
+      },
+    },
   }
 };
 </script>
@@ -182,7 +213,7 @@ export default {
 <style lang="scss">
 
 // colors
-$c-black: #2c3e50;
+$c-black: #293847;
 $c1-grey: #d7dfe9;
 $c2-grey: #eaf0f6;
 $c-white: #fff;
@@ -206,6 +237,10 @@ $f1-second: 'Open Sans', 'Helvetica', Arial, sans-serif;
 }
 @mixin b-large {
   @media (min-width: 1530px) { @content; }
+}
+
+html {
+  font-size: 16px;
 }
 
 body {
@@ -233,6 +268,7 @@ body {
   flex-direction: column;
   min-height: 100vh;
   position: relative;
+  animation: 0.2s fadein ease-in;
 
   @include b-medium {
     max-width: 1200px;
@@ -240,6 +276,14 @@ body {
 
   @include b-large {
     max-width: 1480px;
+  }
+
+  &.dark {
+    background: $c-black;
+
+    footer {
+      color: lighten($c-black, 5%);
+    }
   }
 }
 
@@ -328,6 +372,13 @@ body {
     span {
       display: flex;
     }
+  }
+
+  &--2 {
+    width: 40px;
+    height: 40px;
+    bottom: 75px;
+    right: 15px;
   }
 
   span {
