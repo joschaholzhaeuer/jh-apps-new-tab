@@ -149,7 +149,7 @@ export default {
     blocks: {
       handler() {
         const self = this;
-        // console.log('blocks changed')
+        console.log('blocks changed blocks')
         try {
           chrome.storage.sync.set({blocks: self.blocks});
         } catch (error) {
@@ -161,6 +161,21 @@ export default {
         }
       },
       deep: true
+    },
+    editable: {
+      handler() {
+        const self = this;
+        console.log('blocks changed editable')
+        try {
+          chrome.storage.sync.set({blocks: self.blocks});
+        } catch (error) {
+          localStorage.setItem('blocks', JSON.stringify(self.blocks));
+        }
+
+        if (self.blocks !== undefined && self.blocks.length === 0) {
+          self.editable = true;
+        }
+      },
     }
   }
 };

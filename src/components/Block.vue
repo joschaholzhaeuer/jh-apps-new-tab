@@ -99,16 +99,23 @@
                 class="icon icon--indicator"
                 :name="item.icon">
               </icon>
-              <span
+              <div
                 v-if="globalEditable && blockEditable"
-                class="link">{{ item.name }}</span>
+                class="section section--flex">
+                <input type="text"
+                  v-model="item.name"
+                  class="section__input section__input--light">
+                <input type="text"
+                  v-model="item.link"
+                  class="section__input section__input--light">
+              </div>
               <a
                 v-else
                 :href="item.link"
                 class="link">{{ item.name }}</a>
               <span
                 v-if="globalEditable && blockEditable"
-                @click="removeItem(item.id)"
+                @click="removeItem(item.id); triggerDataUpdate()"
                 class="icon-wrapper">
                 <icon
                   name="times"
@@ -140,7 +147,7 @@
             @click="chooseIcon"
             class="btn">
             <icon
-              :name="newItem.icon || 'anchor'"
+              :name="newItem.icon || 'tag'"
               class="icon">
             </icon>
           </span>
@@ -286,7 +293,7 @@ export default {
             id: self.generateUniqueId(),
             type: 'link',
             name: trimmedName,
-            icon: self.newItem.icon || 'anchor',
+            icon: self.newItem.icon || 'tag',
             link: trimmedLink,
           });
 
@@ -299,7 +306,8 @@ export default {
       self.adjustRowHeight();
 
       // clear new item data
-      self.newItem = {};
+      self.newItem.name = '';
+      self.newItem.link = '';
     },
 
     removeItem: function(idToRemove) {
@@ -435,6 +443,9 @@ export default {
   watch: {
     blockEditable: function() {
       this.triggerDataUpdate();
+    },
+    globalEditable: function() {
+      if (!this.globalEditable) this.blockEditable = false;
     }
   }
 };
@@ -602,6 +613,12 @@ h3 {
     }
   }
 
+  &--flex {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+  }
+
   &__header {
     display: flex;
     justify-content: space-between;
@@ -625,6 +642,12 @@ h3 {
     &:focus {
       outline: 0;
       border-color: $c1-main;
+    }
+
+    &--light {
+      font-family: $f1-main;
+      font-weight: 300;
+      text-transform: none;
     }
   }
 }

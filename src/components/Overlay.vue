@@ -46,7 +46,7 @@ export default {
       icons: [
         {
           id: nextIconId++,
-          name: 'anchor',
+          name: 'tag',
           selected: true,
         },
         {
@@ -126,7 +126,7 @@ export default {
         },
         {
           id: nextIconId++,
-          name: 'tag',
+          name: 'anchor',
           selected: false,
         },
         {
