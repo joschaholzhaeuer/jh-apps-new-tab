@@ -97,6 +97,7 @@ export default {
           item.blockHeading = blockData.blockHeading;
           item.activeColor = blockData.activeColor;
           item.blockItems = blockData.blockItems;
+          item.blockColors = blockData.blockColors;
           item.rowHeight = blockData.rowHeight;
         } else {
           item.blockEditable = false;

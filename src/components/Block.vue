@@ -401,6 +401,7 @@ export default {
               if (item.id === self.id) {
                 self.blockHeading = item.blockHeading || self.blockHeading;
                 self.activeColor = item.activeColor || self.activeColor;
+                self.blockColors = item.blockColors || self.blockColors;
                 self.blockItems = item.blockItems || self.blockItems;
                 self.rowHeight = item.rowHeight || self.rowHeight;
                 self.blockEditable = item.blockEditable || self.blockEditable;
@@ -416,6 +417,7 @@ export default {
               self.blockHeading = item.blockHeading || self.blockHeading;
               self.activeColor = item.activeColor || self.activeColor;
               self.blockItems = item.blockItems || self.blockItems;
+              self.blockColors = item.blockColors || self.blockColors;
               self.rowHeight = item.rowHeight || self.rowHeight;
               self.blockEditable = item.blockEditable || self.blockEditable;
             }
