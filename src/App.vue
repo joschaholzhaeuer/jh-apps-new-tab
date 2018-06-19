@@ -42,6 +42,11 @@
         class="icon">
       </icon>
     </button>
+    <footer
+      v-if="editable"
+      class="footer">
+      <span>made by <a href="https://dreiqbik.de">dreiQBIK</a></span>
+    </footer>
   </div>
 </template>
 
@@ -231,10 +236,12 @@ body {
   text-align: center;
   color: $c-black;
   background-color: $c2-grey;
-  padding: 2em;
-  margin: 1em auto 0;
+  padding: 2.5em 2em 4em;
+  margin: 0 auto;
   display: flex;
   flex-direction: column;
+  min-height: 100vh;
+  position: relative;
 
   @include b-medium {
     max-width: 1200px;
@@ -365,6 +372,20 @@ body {
     height: 25px;
     max-width: 100%;
     max-height: 100%;
+  }
+}
+
+footer {
+  position: absolute;
+  bottom: 1em;
+  left: 50%;
+  transform: translateX(-50%);
+  color: $c1-grey;
+  font-family: $f1-second;
+  font-weight: bold;
+
+  a {
+    color: inherit;
   }
 }
 
