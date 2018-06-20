@@ -19,7 +19,7 @@
     </ul>
     <button
       @click="$emit('setIcon', selectedItemName)">
-      Icon auswählen
+      Choose Icon
     </button>
   </div>
 </template>

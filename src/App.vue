@@ -94,7 +94,7 @@ export default {
     return {
       blocks: [],
       editable: false,
-      bgColored: true,
+      bgColored: false,
       roundedCorners: true,
     };
   },
