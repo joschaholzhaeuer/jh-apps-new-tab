@@ -54,6 +54,16 @@
         class="icon">
       </icon>
     </button>
+    <button
+      v-if="editable"
+      @click="toggleRoundedCorners()"
+      class="btn-settings btn-settings--3">
+      <span>Toggle Rounded Corners</span>
+      <icon
+        name="tint"
+        class="icon">
+      </icon>
+    </button>
     <footer
       v-if="editable"
       class="footer">
@@ -99,6 +109,11 @@ export default {
     toggleColored: function() {
       const self = this;
       self.bgColored = !self.bgColored;
+    },
+
+    toggleRoundedCorners: function() {
+      const self = this;
+      self.roundedCorners = !self.roundedCorners;
     },
 
     adjustBgColor: function() {
@@ -163,12 +178,18 @@ export default {
         chrome.storage.local.get('bgColored', result => {
           if (result.bgColored !== undefined) self.bgColored = result.bgColored;
         });
+        chrome.storage.local.get('roundedCorners', result => {
+          if (result.roundedCorners !== undefined) self.roundedCorners = result.roundedCorners;
+        });
       } catch (error) {
         if (localStorage.getItem('blocks')) {
           self.blocks = JSON.parse(localStorage.getItem('blocks'));
         }
         if (localStorage.getItem('bgColored')) {
           self.bgColored = JSON.parse(localStorage.getItem('bgColored'));
+        }
+        if (localStorage.getItem('roundedCorners')) {
+          self.roundedCorners = JSON.parse(localStorage.getItem('roundedCorners'));
         }
       }
     },
@@ -214,6 +235,15 @@ export default {
           chrome.storage.local.set({bgColored: this.bgColored});
         } catch (error) {
           localStorage.setItem('bgColored', JSON.stringify(this.bgColored));
+        }
+      },
+    },
+    roundedCorners: {
+      handler() {
+        try {
+          chrome.storage.local.set({roundedCorners: this.roundedCorners});
+        } catch (error) {
+          localStorage.setItem('roundedCorners', JSON.stringify(this.roundedCorners));
         }
       },
     },
@@ -387,11 +417,19 @@ body {
     }
   }
 
-  &--2 {
+  &--2,
+  &--3 {
     width: 40px;
     height: 40px;
-    bottom: 75px;
     right: 15px;
+  }
+
+  &--2 {
+    bottom: 70px;
+  }
+
+  &--3 {
+    bottom: 120px;
   }
 
   span {
