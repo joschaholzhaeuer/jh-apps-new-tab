@@ -47,6 +47,8 @@
       v-if="editable"
       @click="toggleColored()"
       class="btn-settings btn-settings--2">
+      <span v-if="bgColored">Toggle Light Mode</span>
+      <span v-else>Toggle Dark Mode</span>
       <icon
         name="tint"
         class="icon">
@@ -158,9 +160,15 @@ export default {
         chrome.storage.local.get('blocks', result => {
           if (result.blocks !== undefined && result.blocks.length) self.blocks = result.blocks;
         });
+        chrome.storage.local.get('bgColored', result => {
+          if (result.bgColored !== undefined) self.bgColored = result.bgColored;
+        });
       } catch (error) {
         if (localStorage.getItem('blocks')) {
           self.blocks = JSON.parse(localStorage.getItem('blocks'));
+        }
+        if (localStorage.getItem('bgColored')) {
+          self.bgColored = JSON.parse(localStorage.getItem('bgColored'));
         }
       }
     },
@@ -202,6 +210,11 @@ export default {
     bgColored: {
       handler() {
         this.adjustBgColor();
+        try {
+          chrome.storage.local.set({bgColored: this.bgColored});
+        } catch (error) {
+          localStorage.setItem('bgColored', JSON.stringify(this.bgColored));
+        }
       },
     },
   }
@@ -384,8 +397,8 @@ body {
   span {
     display: none;
     align-items: center;
-    background-color: $c-white;
-    color: $c1-main;
+    background-color: $c1-main;
+    color: $c-white;
     position: absolute;
     left: -1.5em;
     top: 0;
@@ -394,18 +407,21 @@ body {
     font-family: $f1-second;
     font-weight: bold;
     padding: 0 2em;
+    white-space: nowrap;
     box-shadow: 1px 1px 10px -1px rgba(0, 0, 0, 0.1);
+    animation: slidein 0.1s ease-in;
 
     &:after {
       content: "";
       display: flex;
+      flex-wrap: nowrap;
       position: absolute;
-      right: -10px;
+      right: -9px;
       width: 0;
       height: 0;
       border-top: 10px solid transparent;
       border-bottom: 10px solid transparent;
-      border-left: 10px solid $c-white;
+      border-left: 10px solid $c1-main;
     }
   }
 
@@ -437,6 +453,17 @@ footer {
   }
   100% {
     opacity: 1;
+  }
+}
+
+@keyframes slidein {
+  0% {
+    opacity: 0;
+    transform: translateX(-95%);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(-100%);
   }
 }
 </style>
