@@ -198,6 +198,7 @@
     <Overlay
       v-if="globalEditable && blockEditable && showIcons"
       :activeColor="activeColor"
+      :roundedCorners="roundedCorners"
       @setIcon="setIcon">
     </Overlay>
   </div>
@@ -205,9 +206,9 @@
 
 <script>
 import 'vue-awesome/icons';
-import Overlay from "./Overlay";
 import Icon from 'vue-awesome/components/Icon';
 import draggable from 'vuedraggable';
+import Overlay from "./Overlay";
 
 export default {
 
@@ -483,10 +484,10 @@ h3 {
 .block {
   background-color: $c-white;
   box-shadow: 1px 1px 10px -1px rgba(0, 0, 0, 0.1);
-  position: relative;
+  animation: fadein 0.1s ease-in;
   display: flex;
   flex-direction: column;
-  animation: fadein 0.1s ease-in;
+  position: relative;
 
   &.rounded {
     border-radius: 10px;
@@ -866,12 +867,24 @@ li {
       position: absolute;
       top: -10px;
       right: -10px;
+      padding: 9px;
+
+      .icon {
+        width: 16px;
+        height: 16px;
+      }
     }
 
     &--edit {
       position: absolute;
       bottom: -10px;
       right: -10px;
+      padding: 9px;
+
+      .icon {
+        width: 16px;
+        height: 16px;
+      }
 
       &.green {
         &:hover {

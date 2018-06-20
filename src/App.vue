@@ -60,7 +60,7 @@
       class="btn-settings btn-settings--3">
       <span>Toggle Rounded Corners</span>
       <icon
-        name="tint"
+        name="square"
         class="icon">
       </icon>
     </button>
@@ -77,8 +77,8 @@
 <script>
 import 'vue-awesome/icons';
 import Block from "./components/Block";
-import Icon from 'vue-awesome/components/Icon';
 import draggable from 'vuedraggable';
+import Icon from 'vue-awesome/components/Icon';
 
 export default {
 
@@ -384,7 +384,7 @@ body {
 
   .icon {
     color: $c-white;
-    width: auto;
+    width: 25px;
     height: 25px;
   }
 }
@@ -417,11 +417,23 @@ body {
     }
   }
 
+  .icon {
+    width: 25px;
+    height: 25px;
+    max-width: 100%;
+    max-height: 100%;
+  }
+
   &--2,
   &--3 {
-    width: 40px;
-    height: 40px;
-    right: 15px;
+    width: 34px;
+    height: 34px;
+    right: 19px;
+
+    .icon {
+      width: 16px;
+      height: 16px;
+    }
   }
 
   &--2 {
@@ -429,7 +441,7 @@ body {
   }
 
   &--3 {
-    bottom: 120px;
+    bottom: 115px;
   }
 
   span {
@@ -461,13 +473,6 @@ body {
       border-bottom: 10px solid transparent;
       border-left: 10px solid $c1-main;
     }
-  }
-
-  .icon {
-    width: auto;
-    height: 25px;
-    max-width: 100%;
-    max-height: 100%;
   }
 }
 

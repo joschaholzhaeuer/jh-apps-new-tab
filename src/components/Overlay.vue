@@ -1,5 +1,7 @@
 <template>
-  <div class="overlay">
+  <div
+    :class="{ rounded: roundedCorners }"
+    class="overlay">
     <ul>
       <li
         v-for="icon in icons"
@@ -38,6 +40,7 @@ export default {
 
   props: [
     'activeColor',
+    'roundedCorners',
   ],
 
   data() {
@@ -194,6 +197,206 @@ export default {
           name: 'bell',
           selected: false,
         },
+        {
+          id: nextIconId++,
+          name: 'ambulance',
+          selected: false,
+        },
+        {
+          id: nextIconId++,
+          name: 'cloud',
+          selected: false,
+        },
+        {
+          id: nextIconId++,
+          name: 'asterisk',
+          selected: false,
+        },
+        {
+          id: nextIconId++,
+          name: 'beer',
+          selected: false,
+        },
+        {
+          id: nextIconId++,
+          name: 'book',
+          selected: false,
+        },
+        {
+          id: nextIconId++,
+          name: 'bookmark',
+          selected: false,
+        },
+        {
+          id: nextIconId++,
+          name: 'bug',
+          selected: false,
+        },
+        {
+          id: nextIconId++,
+          name: 'camera',
+          selected: false,
+        },
+        {
+          id: nextIconId++,
+          name: 'car',
+          selected: false,
+        },
+        {
+          id: nextIconId++,
+          name: 'check',
+          selected: false,
+        },
+        {
+          id: nextIconId++,
+          name: 'clipboard',
+          selected: false,
+        },
+        {
+          id: nextIconId++,
+          name: 'code',
+          selected: false,
+        },
+        {
+          id: nextIconId++,
+          name: 'coffee',
+          selected: false,
+        },
+        {
+          id: nextIconId++,
+          name: 'cube',
+          selected: false,
+        },
+        {
+          id: nextIconId++,
+          name: 'database',
+          selected: false,
+        },
+        {
+          id: nextIconId++,
+          name: 'edit',
+          selected: false,
+        },
+        {
+          id: nextIconId++,
+          name: 'flag',
+          selected: false,
+        },
+        {
+          id: nextIconId++,
+          name: 'eye',
+          selected: false,
+        },
+        {
+          id: nextIconId++,
+          name: 'female',
+          selected: false,
+        },
+        {
+          id: nextIconId++,
+          name: 'male',
+          selected: false,
+        },
+        {
+          id: nextIconId++,
+          name: 'folder-open',
+          selected: false,
+        },
+        {
+          id: nextIconId++,
+          name: 'home',
+          selected: false,
+        },
+        {
+          id: nextIconId++,
+          name: 'gift',
+          selected: false,
+        },
+        {
+          id: nextIconId++,
+          name: 'id-card',
+          selected: false,
+        },
+        {
+          id: nextIconId++,
+          name: 'image',
+          selected: false,
+        },
+        {
+          id: nextIconId++,
+          name: 'microphone',
+          selected: false,
+        },
+        {
+          id: nextIconId++,
+          name: 'lock',
+          selected: false,
+        },
+        {
+          id: nextIconId++,
+          name: 'shopping-cart',
+          selected: false,
+        },
+        {
+          id: nextIconId++,
+          name: 'phone',
+          selected: false,
+        },
+        {
+          id: nextIconId++,
+          name: 'question',
+          selected: false,
+        },
+        {
+          id: nextIconId++,
+          name: 'search',
+          selected: false,
+        },
+        {
+          id: nextIconId++,
+          name: 'shield',
+          selected: false,
+        },
+        {
+          id: nextIconId++,
+          name: 'tint',
+          selected: false,
+        },
+        {
+          id: nextIconId++,
+          name: 'tree',
+          selected: false,
+        },
+        {
+          id: nextIconId++,
+          name: 'trash',
+          selected: false,
+        },
+        {
+          id: nextIconId++,
+          name: 'trophy',
+          selected: false,
+        },
+        {
+          id: nextIconId++,
+          name: 'user',
+          selected: false,
+        },
+        {
+          id: nextIconId++,
+          name: 'wifi',
+          selected: false,
+        },
+        {
+          id: nextIconId++,
+          name: 'wrench',
+          selected: false,
+        },
+        {
+          id: nextIconId++,
+          name: 'users',
+          selected: false,
+        },
       ],
     };
   },
@@ -243,13 +446,18 @@ $f1-second: 'Open Sans', 'Helvetica', sans-serif;
   position: absolute;
   left: 1em;
   right: 1em;
-  bottom: 1.5em;
+  top: 1em;
+  bottom: 1em;
   z-index: 5;
-  background: $c-white;
+  background-color: $c-white;
   color: $c1-main;
   font-family: $f1-second;
-  box-shadow: 1px 1px 10px -1px rgba(0, 0, 0, 0.1);
-  padding: 2.5em 1.5em 2em;
+  box-shadow: 1px 1px 10px -1px rgba(0, 0, 0, 0.15);
+  padding: 1.5em;
+
+  &.rounded {
+    border-radius: 10px;
+  }
 }
 
 ul {
@@ -258,6 +466,8 @@ ul {
   list-style: none;
   display: flex;
   flex-wrap: wrap;
+  max-height: calc(100% - 30px);
+  overflow-y: scroll;
 }
 
 li {
@@ -265,13 +475,14 @@ li {
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-bottom: 1.5em;
+  margin-bottom: 2em;
 
   span {
     display: flex;
     cursor: pointer;
-    padding: 5px;
+    padding: 9px;
     border-radius: 50%;
+    position: relative;
 
     &.isSelected {
       background-color: $c1-main;
@@ -295,8 +506,6 @@ li {
 
       .icon {
         color: $c-white;
-        width: 14px;
-        height: 14px;
       }
     }
 
@@ -306,9 +515,12 @@ li {
 
       .icon {
         color: $c-white;
-        width: 14px;
-        height: 14px;
       }
+    }
+
+    .icon {
+      width: 16px;
+      height: 16px;
     }
   }
 
