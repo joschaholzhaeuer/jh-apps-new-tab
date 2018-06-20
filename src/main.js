@@ -6,17 +6,13 @@ import App from './App';
 Vue.config.productionTip = false;
 
 /* eslint-disable no-new */
+// new Vue({
+//   el: '#app',
+//   components: { App },
+//   template: '<App/>',
+// });
+
 new Vue({
   el: '#app',
-  components: { App },
-  template: '<App/>',
+  render: h => h(App),
 });
-
-// new Vue({
-//   // el: '#app',
-//   // components: { App },
-//   // template: '<App/>',
-//   render (createElement) {
-//     return createElement('div', App);
-//   }
-// }).$mount('#app');
