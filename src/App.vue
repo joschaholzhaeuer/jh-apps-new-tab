@@ -1,5 +1,5 @@
 <template>
-  <div id="app" :class="[{rounded: roundedCorners}, {dark: bgColored}]">
+  <div id="app" :class="[{rounded: style.rounded}, {dark: style.dark}]">
     <draggable
       v-model="blocks"
       :options="{ disabled: editable ? false : true, handle: '.block__handle' }"
@@ -7,7 +7,8 @@
       <Block
         v-for="(block, index) in blocks"
         :globalEditable="editable"
-        :roundedCorners="roundedCorners"
+        :styleRounded="style.rounded"
+        :styleDark="style.dark"
         :block="block"
         :index="index"
         :key="block.id"
@@ -47,7 +48,7 @@
       v-if="editable"
       @click="toggleColored()"
       class="btn-settings btn-settings--2">
-      <span v-if="bgColored">Toggle Light Mode</span>
+      <span v-if="style.dark">Toggle Light Mode</span>
       <span v-else>Toggle Dark Mode</span>
       <icon
         name="tint"
@@ -94,37 +95,43 @@ export default {
     return {
       blocks: [],
       editable: false,
-      bgColored: false,
-      roundedCorners: true,
+      style: {
+        dark: false,
+        rounded: true,
+      }
     };
   },
 
   methods: {
 
-    toggleEditable: function() {
+    toggleEditable() {
       const self = this;
       self.editable = !self.editable;
     },
 
-    toggleColored: function() {
+    toggleRoundedCorners() {
       const self = this;
-      self.bgColored = !self.bgColored;
+      self.style.rounded = !self.style.rounded;
+      self.saveToStorage({style: self.style}, 'style', self.style);
     },
 
-    toggleRoundedCorners: function() {
+    toggleColored() {
       const self = this;
-      self.roundedCorners = !self.roundedCorners;
+      self.style.dark = !self.style.dark;
+      self.adjustBgColor();
     },
 
-    adjustBgColor: function() {
-      if (this.bgColored) {
+    adjustBgColor() {
+      const self = this;
+      if (self.style.dark) {
         document.querySelector('body').style.backgroundColor = '#293847';
       } else {
         document.querySelector('body').style.backgroundColor = '#eaf0f6';
       }
+      self.saveToStorage({style: self.style}, 'style', self.style);
     },
 
-    addBlock: function() {
+    addBlock() {
       const self = this;
       self.blocks.push({
         id: self.generateUniqueId(),
@@ -132,12 +139,12 @@ export default {
       });
     },
 
-    deleteBlock: function(index) {
+    deleteBlock(index) {
       const self = this;
       self.blocks.splice(index, 1);
     },
 
-    updateBlocks: function(blockData) {
+    updateBlocks(blockData) {
       const self = this;
       self.blocks.forEach(item => {
         if (item.id === blockData.id) {
@@ -150,46 +157,40 @@ export default {
           item.blockEditable = false;
         }
       });
+      self.saveToStorage({blocks: self.blocks}, 'blocks', self.blocks);
+    },
 
+    saveToStorage(object, stringName, value) {
+      const self = this;
       try {
-        chrome.storage.local.set({blocks: self.blocks});
+        chrome.storage.local.set(object);
       } catch (error) {
-        localStorage.setItem('blocks', JSON.stringify(self.blocks));
+        localStorage.setItem(stringName, JSON.stringify(value));
       }
     },
 
-    saveData: function() {
-      chrome.storage.local.set({blocks: self.blocks});
-    },
-
-    generateUniqueId: function() {
+    generateUniqueId() {
       return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
         var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
         return v.toString(16);
       });
     },
 
-    getData: function() {
+    getData() {
       const self = this;
       try {
         chrome.storage.local.get('blocks', result => {
           if (result.blocks !== undefined && result.blocks.length) self.blocks = result.blocks;
         });
-        chrome.storage.local.get('bgColored', result => {
-          if (result.bgColored !== undefined) self.bgColored = result.bgColored;
-        });
-        chrome.storage.local.get('roundedCorners', result => {
-          if (result.roundedCorners !== undefined) self.roundedCorners = result.roundedCorners;
+        chrome.storage.local.get('style', result => {
+          if (result.style !== undefined) self.style = result.style;
         });
       } catch (error) {
         if (localStorage.getItem('blocks')) {
           self.blocks = JSON.parse(localStorage.getItem('blocks'));
         }
-        if (localStorage.getItem('bgColored')) {
-          self.bgColored = JSON.parse(localStorage.getItem('bgColored'));
-        }
-        if (localStorage.getItem('roundedCorners')) {
-          self.roundedCorners = JSON.parse(localStorage.getItem('roundedCorners'));
+        if (localStorage.getItem('style')) {
+          self.style = JSON.parse(localStorage.getItem('style'));
         }
       }
     },
@@ -206,11 +207,7 @@ export default {
       handler() {
         const self = this;
         // console.log('blocks changed blocks')
-        try {
-          chrome.storage.local.set({blocks: self.blocks});
-        } catch (error) {
-          localStorage.setItem('blocks', JSON.stringify(self.blocks));
-        }
+        self.saveToStorage({blocks: self.blocks}, 'blocks', self.blocks);
         if (self.blocks !== undefined && self.blocks.length === 0) {
           self.editable = true;
         }
@@ -221,30 +218,7 @@ export default {
       handler() {
         const self = this;
         // console.log('blocks changed editable')
-        try {
-          chrome.storage.local.set({blocks: self.blocks});
-        } catch (error) {
-          localStorage.setItem('blocks', JSON.stringify(self.blocks));
-        }
-      },
-    },
-    bgColored: {
-      handler() {
-        this.adjustBgColor();
-        try {
-          chrome.storage.local.set({bgColored: this.bgColored});
-        } catch (error) {
-          localStorage.setItem('bgColored', JSON.stringify(this.bgColored));
-        }
-      },
-    },
-    roundedCorners: {
-      handler() {
-        try {
-          chrome.storage.local.set({roundedCorners: this.roundedCorners});
-        } catch (error) {
-          localStorage.setItem('roundedCorners', JSON.stringify(this.roundedCorners));
-        }
+        self.saveToStorage({blocks: self.blocks}, 'blocks', self.blocks);
       },
     },
   }
@@ -304,7 +278,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: $c-black;
-  background-color: $c2-grey;
+  // background-color: $c2-grey;
   padding: 2.5em 2em 4em;
   margin: 0 auto;
   display: flex;
@@ -322,7 +296,6 @@ body {
   }
 
   &.dark {
-    background: $c-black;
 
     footer {
       color: lighten($c-black, 5%);

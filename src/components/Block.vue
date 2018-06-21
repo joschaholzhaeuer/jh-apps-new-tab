@@ -1,9 +1,9 @@
 <template>
   <div
-    :class="[{ isGlobalEditable: globalEditable }, { isEditable: blockEditable }, { rounded: roundedCorners }, 'span-' + rowHeight]"
+    :class="[{ isGlobalEditable: globalEditable }, { isEditable: blockEditable }, { rounded: styleRounded }, {dark: styleDark}, 'span-' + rowHeight]"
     class="block">
     <header
-      :class="[activeColor, { rounded: roundedCorners }]"
+      :class="[activeColor, { rounded: styleRounded }]"
       class="block__header block__handle">
       <span
         v-if="globalEditable"
@@ -198,7 +198,8 @@
     <Overlay
       v-if="globalEditable && blockEditable && showIcons"
       :activeColor="activeColor"
-      :roundedCorners="roundedCorners"
+      :styleRounded="styleRounded"
+      :styleDark="styleDark"
       @setIcon="setIcon">
     </Overlay>
   </div>
@@ -222,7 +223,8 @@ export default {
 
   props: [
     'globalEditable',
-    'roundedCorners',
+    'styleRounded',
+    'styleDark',
     'index',
     'block',
   ],
@@ -491,6 +493,72 @@ h3 {
 
   &.rounded {
     border-radius: 10px;
+
+    .block__header {
+      border-radius: 10px 10px 0 0;
+    }
+
+    form {
+      border-radius: 0 10px 10px 10px;
+
+      input,
+      .btn {
+        border-radius: 5px;
+      }
+    }
+
+    .tab__item {
+      border-radius: 5px 5px 0 0;
+    }
+  }
+
+  &.dark {
+    background-color: darken($c-black, 5%);
+
+    .tab__item {
+      border-color: $c-black;
+
+      &.is-active {
+        background-color: $c-black;
+      }
+    }
+
+    .icon-wrapper--light {
+      background-color: $c-black;
+    }
+
+    .section__input {
+      border-color: $c-black;
+    }
+
+    .color {
+      border-color: darken($c-black, 5%);
+    }
+
+    .link,
+    .icon--indicator,
+    h3 {
+      color: $c1-grey;
+    }
+
+    form {
+      background-color: $c-black;
+
+      input {
+        color: $c1-main;
+        background-color: darken($c-black, 5%);
+        border-color: lighten($c-black, 5%);
+
+        &::placeholder {
+          color: lighten($c-black, 5%);
+        }
+      }
+
+      input[type="submit"] {
+        background-color: $c1-main;
+        color: $c-white;
+      }
+    }
   }
 
   &.isEditable {
@@ -545,10 +613,6 @@ h3 {
     color: $c-white;
     padding: 1.3em 1.5em;
     display: flex;
-
-    &.rounded {
-      border-radius: 10px 10px 0 0;
-    }
 
     &.green {
       background-color: $c1-second;

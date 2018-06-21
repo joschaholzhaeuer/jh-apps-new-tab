@@ -1,6 +1,6 @@
 <template>
   <div
-    :class="{ rounded: roundedCorners }"
+    :class="{ rounded: styleRounded }"
     class="overlay">
     <ul>
       <li
@@ -40,7 +40,7 @@ export default {
 
   props: [
     'activeColor',
-    'roundedCorners',
+    'styleRounded',
   ],
 
   data() {
@@ -457,6 +457,10 @@ $f1-second: 'Open Sans', 'Helvetica', sans-serif;
 
   &.rounded {
     border-radius: 10px;
+
+    button {
+      border-radius: 5px;
+    }
   }
 }
 
