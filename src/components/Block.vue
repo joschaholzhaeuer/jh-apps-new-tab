@@ -832,7 +832,7 @@ form {
 
 .colors {
   position: absolute;
-  top: 54px;
+  top: 57px;
   left: 50%;
   transform: translateX(-50%);
 
@@ -904,13 +904,13 @@ li {
 
 .icon {
   color: $c-white;
-  width: 14px;
-  height: 14px;
+  width: 16px;
+  height: 16px;
 
   &--indicator {
     color: $c1-main;
     margin-right: 1em;
-    min-width: 14px;
+    min-width: 16px;
   }
 
   &-wrapper {
