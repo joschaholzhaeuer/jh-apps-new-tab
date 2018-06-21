@@ -95,7 +95,16 @@
             <div
               v-if="item.type === 'link'"
               class="section">
+              <span
+                v-if="globalEditable && blockEditable"
+                @click="chooseIcon(item.icon, item.id)">
+                <icon
+                  class="icon icon--indicator icon--changeable"
+                  :name="item.icon">
+                </icon>
+              </span>
               <icon
+                v-else
                 class="icon icon--indicator"
                 :name="item.icon">
               </icon>
@@ -144,7 +153,7 @@
         @submit.prevent="addItem('link'); triggerDataUpdate();">
         <div>
           <span
-            @click="chooseIcon"
+            @click="chooseIcon(newItem.icon || 'tag', '')"
             class="btn">
             <icon
               :name="newItem.icon || 'tag'"
@@ -200,6 +209,8 @@
       :activeColor="activeColor"
       :styleRounded="styleRounded"
       :styleDark="styleDark"
+      :currentIcon="currentIcon"
+      :selectedItemId="selectedItemId"
       @setIcon="setIcon">
     </Overlay>
   </div>
@@ -262,13 +273,15 @@ export default {
         },
       ],
       showIcons: false,
+      currentIcon: 'tag',
+      selectedItemId: '',
       rowHeight: '1',
     };
   },
 
   methods: {
 
-    addItem: function(type) {
+    addItem(type) {
       const self = this;
       let trimmedName;
       let trimmedLink;
@@ -317,7 +330,7 @@ export default {
       self.newItem.link = '';
     },
 
-    removeItem: function(idToRemove) {
+    removeItem(idToRemove) {
       const self = this;
 
       // get items to keep
@@ -329,7 +342,7 @@ export default {
       self.adjustRowHeight();
     },
 
-    adjustRowHeight: function() {
+    adjustRowHeight() {
       const self = this;
 
       // get number of items and set row height
@@ -343,7 +356,7 @@ export default {
       }
     },
 
-    changeColor: function(colorId) {
+    changeColor(colorId) {
       const self = this;
 
       // get previous selected color and set to false
@@ -365,14 +378,14 @@ export default {
       self.activeColor = self.blockColors.filter(item => { return item.selected })[0].name;
     },
 
-    getSelectedColor: function() {
+    getSelectedColor() {
       const self = this;
       const selectedColor = self.blockColors.filter(item => {
         return item.selected === true;
       })[0];
     },
 
-    switchTabs: function(activeTab) {
+    switchTabs(activeTab) {
       const self = this;
       if (activeTab === 'heading') {
         self.groupEditable = true;
@@ -383,30 +396,38 @@ export default {
       }
     },
 
-    chooseIcon: function() {
+    chooseIcon(iconName, itemIdToChange) {
       const self = this;
       self.showIcons = true;
+      self.selectedItemId = itemIdToChange;
+      self.currentIcon = iconName || newItem.icon || 'tag';
     },
 
-    setIcon: function(iconName) {
+    setIcon(iconName, itemIdToChange) {
       const self = this;
       self.showIcons = false;
-      self.newItem.icon = iconName;
+      if (itemIdToChange === '') {
+        self.newItem.icon = iconName;
+      } else {
+        self.blockItems.filter(item => {
+          return item.id === itemIdToChange;
+        })[0].icon = iconName;
+      }
     },
 
-    generateUniqueId: function() {
+    generateUniqueId() {
       return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
         var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
         return v.toString(16);
       });
     },
 
-    triggerDataUpdate: function() {
+    triggerDataUpdate() {
       // console.log('edited')
       this.$emit('updateBlocks', this.$data);
     },
 
-    getData: function() {
+    getData() {
       const self = this;
       try {
         chrome.storage.local.get('blocks', result => {
@@ -448,10 +469,10 @@ export default {
   },
 
   watch: {
-    blockEditable: function() {
+    blockEditable() {
       this.triggerDataUpdate();
     },
-    globalEditable: function() {
+    globalEditable() {
       if (!this.globalEditable) this.blockEditable = false;
     }
   }
@@ -911,6 +932,10 @@ li {
     color: $c1-main;
     margin-right: 1em;
     min-width: 16px;
+  }
+
+  &--changeable {
+    cursor: pointer;
   }
 
   &-wrapper {

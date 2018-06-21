@@ -18,7 +18,13 @@
       </li>
     </ul>
     <button
-      @click="$emit('setIcon', selectedItemName)">
+      v-if="selectedItemId !== ''"
+      @click="$emit('setIcon', selectedItemName, selectedItemId)">
+      Change Icon
+    </button>
+    <button
+      v-else
+      @click="$emit('setIcon', selectedItemName, '')">
       Choose Icon
     </button>
   </div>
@@ -41,6 +47,8 @@ export default {
   props: [
     'activeColor',
     'styleRounded',
+    'currentIcon',
+    'selectedItemId',
   ],
 
   data() {
@@ -50,7 +58,7 @@ export default {
         {
           id: nextIconId++,
           name: 'tag',
-          selected: true,
+          selected: false,
         },
         {
           id: nextIconId++,
@@ -403,7 +411,7 @@ export default {
 
   methods: {
 
-    selectIcon: function(idToSelect) {
+    selectIcon(idToSelect) {
       var self = this;
 
       // deselect currently selected item
@@ -419,8 +427,20 @@ export default {
         };
       });
     },
+
+    setCurrentIcon() {
+      const self = this;
+      const iconToSelect = self.icons.filter(icon => {
+        return icon.name === self.currentIcon;
+      })[0];
+      iconToSelect.selected = true;
+      self.selectedItemName = iconToSelect.name;
+    }
   },
 
+  created() {
+    this.setCurrentIcon();
+  },
 };
 </script>
 

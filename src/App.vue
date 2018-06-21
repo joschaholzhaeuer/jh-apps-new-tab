@@ -119,6 +119,7 @@ export default {
       const self = this;
       self.style.dark = !self.style.dark;
       self.adjustBgColor();
+      self.saveToStorage({style: self.style}, 'style', self.style);
     },
 
     adjustBgColor() {
@@ -128,7 +129,6 @@ export default {
       } else {
         document.querySelector('body').style.backgroundColor = '#eaf0f6';
       }
-      self.saveToStorage({style: self.style}, 'style', self.style);
     },
 
     addBlock() {
@@ -184,6 +184,7 @@ export default {
         });
         chrome.storage.local.get('style', result => {
           if (result.style !== undefined) self.style = result.style;
+          self.adjustBgColor();
         });
       } catch (error) {
         if (localStorage.getItem('blocks')) {
@@ -199,7 +200,6 @@ export default {
   created() {
     const self = this;
     self.getData();
-    self.adjustBgColor();
   },
 
   watch: {
