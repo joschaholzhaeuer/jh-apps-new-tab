@@ -2,6 +2,10 @@
 
 > A Vue.js project
 
+## How it looks
+
+![Image of New Tab Page](src/assets/08.jpg)
+
 ## Build Setup
 
 ``` bash
