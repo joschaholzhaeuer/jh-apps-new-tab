@@ -1,6 +1,7 @@
-# jh-app-new-tab
+# New Tab Link Collection
 
-> A Vue.js project
+This extension replaces the new tab page with a nice grid view, where you can add your favorite and most frequently used links. The grid is adjustable to your needs and you can sort your links with headings, groups, icons and colors. You can even use drag and drop to move your lists and list items around.
+Check it out at: https://chrome.google.com/webstore/detail/new-tab-link-collection/gophcpnbaafonmeaekpebpdgmmfmnfep
 
 ## How it looks
 
