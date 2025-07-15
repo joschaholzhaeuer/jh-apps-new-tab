@@ -1,37 +1,41 @@
 <template>
   <div
-    :class="[{ isGlobalEditable: globalEditable }, { isEditable: blockEditable }, { rounded: styleRounded }, {dark: styleDark}, 'span-' + rowHeight]"
-    class="block">
+    :class="[
+      { isGlobalEditable: globalEditable },
+      { isEditable: blockEditable },
+      { rounded: styleRounded },
+      { dark: styleDark },
+      'span-' + rowHeight,
+    ]"
+    class="block"
+  >
     <header
       :class="[activeColor, { rounded: styleRounded }]"
-      class="block__header block__handle">
+      class="block__header block__handle"
+    >
       <span
         v-if="globalEditable"
-        class="icon-wrapper icon-wrapper--drag handle">
-        <icon
-          name="arrows"
-          class="icon">
-        </icon>
+        class="icon-wrapper icon-wrapper--drag handle"
+      >
+        <font-awesome-icon icon="arrows-alt" class="icon" />
       </span>
-      <input type="text"
+      <input
+        type="text"
         v-if="globalEditable && blockEditable"
         placeholder="Heading"
-        v-model="blockHeading">
-      <h2
-        v-else
-        :class="{ isCentered: globalEditable }">{{ blockHeading }}</h2>
+        v-model="blockHeading"
+        :id="`block-heading-${id}`"
+        :name="`block-heading-${id}`"
+      />
+      <h2 v-else :class="{ isCentered: globalEditable }">{{ blockHeading }}</h2>
       <span
         v-if="globalEditable && !showIcons"
         @click="$emit('deleteBlock', index)"
-        class="icon-wrapper icon-wrapper--close icon-wrapper--red">
-        <icon
-          name="times"
-          class="icon">
-        </icon>
+        class="icon-wrapper icon-wrapper--close icon-wrapper--red"
+      >
+        <font-awesome-icon icon="times" class="icon" />
       </span>
-      <div
-        v-if="globalEditable && blockEditable"
-        class="colors">
+      <div v-if="globalEditable && blockEditable" class="colors">
         <ul>
           <li
             v-for="color in blockColors"
@@ -39,12 +43,13 @@
             :class="'color--' + color.name"
             :data-selected="color.selected"
             @click="changeColor(color.id)"
-            class="color">
-            <icon
+            class="color"
+          >
+            <font-awesome-icon
               v-if="color.selected"
-              name="check"
-              class="icon icon--colored">
-            </icon>
+              icon="check"
+              class="icon icon--colored"
+            />
           </li>
         </ul>
       </div>
@@ -57,152 +62,161 @@
           @add="triggerDataUpdate"
           @remove="triggerDataUpdate"
           @end="triggerDataUpdate"
-          :options="{
-            group: 'blockList',
-            disabled: globalEditable && blockEditable ? false : true,
-            handle: '.handle'
-          }">
-          <li
-            v-for="item in blockItems"
-            :key="item.id"
-            >
-            <span
-              v-if="globalEditable && blockEditable"
-              class="icon-wrapper icon-wrapper--light handle">
-              <icon
-                name="arrows"
-                class="icon">
-              </icon>
-            </span>
-            <div
-              v-if="item.type === 'heading'"
-              class="section">
-              <input type="text"
-                v-if="globalEditable && blockEditable"
-                v-model="item.name"
-                class="section__input">
+          group="blockList"
+          :disabled="globalEditable && blockEditable ? false : true"
+          handle=".handle"
+          item-key="id"
+        >
+          <template #item="{ element: item }">
+            <li :key="item.id">
               <span
                 v-if="globalEditable && blockEditable"
-                @click="removeItem(item.id)"
-                class="icon-wrapper">
-                <icon
-                  name="times"
-                  class="icon">
-                </icon>
+                class="icon-wrapper icon-wrapper--light handle"
+              >
+                <font-awesome-icon icon="arrows-alt" class="icon" />
               </span>
-              <h3 v-else>{{ item.name }}</h3>
-            </div>
-            <div
-              v-if="item.type === 'link'"
-              class="section">
-              <span
-                v-if="globalEditable && blockEditable"
-                @click="chooseIcon(item.icon, item.id)">
-                <icon
-                  class="icon icon--indicator icon--changeable"
-                  :name="item.icon">
-                </icon>
-              </span>
-              <icon
-                v-else
-                class="icon icon--indicator"
-                :name="item.icon">
-              </icon>
-              <div
-                v-if="globalEditable && blockEditable"
-                class="section section--flex">
-                <input type="text"
+              <div v-if="item.type === 'heading'" class="section">
+                <input
+                  type="text"
+                  v-if="globalEditable && blockEditable"
                   v-model="item.name"
-                  class="section__input section__input--light">
-                <input type="text"
-                  v-model="item.link"
-                  class="section__input section__input--light">
+                  class="section__input"
+                  :id="`heading-${item.id}`"
+                  :name="`heading-${item.id}`"
+                />
+                <span
+                  v-if="globalEditable && blockEditable"
+                  @click="removeItem(item.id)"
+                  class="icon-wrapper"
+                >
+                  <font-awesome-icon icon="times" class="icon" />
+                </span>
+                <h3 v-else>{{ item.name }}</h3>
               </div>
-              <a
-                v-else
-                :href="item.link"
-                class="link">{{ item.name }}</a>
-              <span
-                v-if="globalEditable && blockEditable"
-                @click="removeItem(item.id); triggerDataUpdate()"
-                class="icon-wrapper">
-                <icon
-                  name="times"
-                  class="icon">
-                </icon>
-              </span>
-            </div>
-          </li>
+              <div v-if="item.type === 'link'" class="section">
+                <span
+                  v-if="globalEditable && blockEditable"
+                  @click="chooseIcon(item.icon, item.id)"
+                >
+                  <font-awesome-icon
+                    class="icon icon--indicator icon--changeable"
+                    :icon="item.icon"
+                  />
+                </span>
+                <font-awesome-icon
+                  v-else
+                  class="icon icon--indicator"
+                  :icon="item.icon"
+                />
+                <div
+                  v-if="globalEditable && blockEditable"
+                  class="section section--flex"
+                >
+                  <input
+                    type="text"
+                    v-model="item.name"
+                    class="section__input section__input--light"
+                    :id="`link-name-${item.id}`"
+                    :name="`link-name-${item.id}`"
+                  />
+                  <input
+                    type="text"
+                    v-model="item.link"
+                    class="section__input section__input--light"
+                    :id="`link-url-${item.id}`"
+                    :name="`link-url-${item.id}`"
+                  />
+                </div>
+                <a v-else :href="item.link" class="link">{{ item.name }}</a>
+                <span
+                  v-if="globalEditable && blockEditable"
+                  @click="
+                    removeItem(item.id);
+                    triggerDataUpdate();
+                  "
+                  class="icon-wrapper"
+                >
+                  <font-awesome-icon icon="times" class="icon" />
+                </span>
+              </div>
+            </li>
+          </template>
         </draggable>
-        <p v-else>No links saved yet. Start adding your favorite links and websites!</p>
+        <p v-else>
+          No links saved yet. Start adding your favorite links and websites!
+        </p>
       </ul>
-      <div
-        v-if="globalEditable && blockEditable"
-        class="tab">
+      <div v-if="globalEditable && blockEditable" class="tab">
         <span
           @click="switchTabs('item')"
           :class="{ 'is-active': itemEditable }"
-          class="tab__item">Links</span>
+          class="tab__item"
+          >Links</span
+        >
         <span
           @click="switchTabs('heading')"
           :class="{ 'is-active': groupEditable }"
-          class="tab__item">Group</span>
+          class="tab__item"
+          >Group</span
+        >
       </div>
       <form
         v-if="globalEditable && blockEditable && itemEditable"
-        @submit.prevent="addItem('link'); triggerDataUpdate();">
+        @submit.prevent="
+          addItem('link');
+          triggerDataUpdate();
+        "
+      >
         <div>
-          <span
-            @click="chooseIcon(newItem.icon || 'tag', '')"
-            class="btn">
-            <icon
-              :name="newItem.icon || 'tag'"
-              class="icon">
-            </icon>
+          <span @click="chooseIcon(newItem.icon || 'tag', '')" class="btn">
+            <font-awesome-icon :icon="newItem.icon || 'tag'" class="icon" />
           </span>
           <input
             type="text"
             v-model="newItem.name"
             placeholder="Name, e.g. dreiQBIK"
+            :id="`new-link-name-${id}`"
+            name="new-link-name"
           />
         </div>
         <input
           type="text"
           v-model="newItem.link"
           placeholder="Link, e.g. https://dreiqbik.de"
+          :id="`new-link-url-${id}`"
+          name="new-link-url"
         />
-        <input type="submit" value="Add">
+        <input type="submit" value="Add" name="add-link-submit" />
       </form>
       <form
         v-if="globalEditable && blockEditable && groupEditable"
-        @submit.prevent="addItem('heading')">
+        @submit.prevent="addItem('heading')"
+      >
         <input
           type="text"
           v-model="newItem.name"
           placeholder="Name"
+          :id="`new-heading-name-${id}`"
+          name="new-heading-name"
         />
-        <input type="submit" value="Add">
+        <input type="submit" value="Add" name="add-heading-submit" />
       </form>
     </div>
     <span
       v-if="globalEditable && !blockEditable && !showIcons"
       @click="blockEditable = true"
       :class="activeColor"
-      class="icon-wrapper icon-wrapper--edit">
-      <icon
-        name="edit"
-        class="icon">
-      </icon>
+      class="icon-wrapper icon-wrapper--edit"
+    >
+      <font-awesome-icon icon="edit" class="icon" />
     </span>
     <span
       v-if="globalEditable && blockEditable && !showIcons"
-      @click="blockEditable = false;"
+      @click="blockEditable = false"
       :class="activeColor"
-      class="icon-wrapper icon-wrapper--edit">
-      <icon
-        name="check"
-        class="icon">
-      </icon>
+      class="icon-wrapper icon-wrapper--edit"
+    >
+      <font-awesome-icon icon="check" class="icon" />
     </span>
     <Overlay
       v-if="globalEditable && blockEditable && showIcons"
@@ -211,99 +225,88 @@
       :styleDark="styleDark"
       :currentIcon="currentIcon"
       :selectedItemId="selectedItemId"
-      @setIcon="setIcon">
+      @setIcon="setIcon"
+    >
     </Overlay>
   </div>
 </template>
 
 <script>
-import 'vue-awesome/icons';
-import Icon from 'vue-awesome/components/Icon';
-import draggable from 'vuedraggable';
-import Overlay from "./Overlay";
+import draggable from "vuedraggable";
+import Overlay from "./Overlay.vue";
 
 export default {
-
-  name: 'Block',
+  name: "Block",
 
   components: {
-    Icon,
     draggable,
     Overlay,
   },
 
-  props: [
-    'globalEditable',
-    'styleRounded',
-    'styleDark',
-    'index',
-    'block',
-  ],
+  props: ["globalEditable", "styleRounded", "styleDark", "index", "block"],
 
   data() {
     return {
       id: this.block.id,
       blockEditable: this.block.blockEditable,
-      blockHeading: '',
+      blockHeading: "",
       newItem: {},
-      activeColor: 'green',
+      activeColor: "green",
       groupEditable: false,
       itemEditable: true,
       blockItems: [],
       blockColors: [
         {
           id: 1,
-          name: 'green',
-          selected: true
+          name: "green",
+          selected: true,
         },
         {
           id: 2,
-          name: 'blue',
-          selected: false
+          name: "blue",
+          selected: false,
         },
         {
           id: 3,
-          name: 'yellow',
-          selected: false
+          name: "yellow",
+          selected: false,
         },
         {
           id: 4,
-          name: 'red',
-          selected: false
+          name: "red",
+          selected: false,
         },
       ],
       showIcons: false,
-      currentIcon: 'tag',
-      selectedItemId: '',
-      rowHeight: '1',
+      currentIcon: "tag",
+      selectedItemId: "",
+      rowHeight: "1",
     };
   },
 
   methods: {
-
     addItem(type) {
       const self = this;
       let trimmedName;
       let trimmedLink;
 
       // type = heading
-      if (type === 'heading') {
+      if (type === "heading") {
         if (self.newItem.name) {
           trimmedName = self.newItem.name.trim();
 
           // add new item
           self.blockItems.push({
             id: self.generateUniqueId(),
-            type: 'heading',
+            type: "heading",
             name: trimmedName,
           });
-
         } else {
           return;
         }
 
-      // type = link
-      } else if (type === 'link') {
+        // type = link
+      } else if (type === "link") {
         if (self.newItem.name && self.newItem.link) {
           trimmedName = self.newItem.name.trim();
           trimmedLink = self.newItem.link.trim();
@@ -311,12 +314,11 @@ export default {
           // add new item
           self.blockItems.push({
             id: self.generateUniqueId(),
-            type: 'link',
+            type: "link",
             name: trimmedName,
-            icon: self.newItem.icon || 'tag',
+            icon: self.newItem.icon || "tag",
             link: trimmedLink,
           });
-
         } else {
           return;
         }
@@ -326,15 +328,15 @@ export default {
       self.adjustRowHeight();
 
       // clear new item data
-      self.newItem.name = '';
-      self.newItem.link = '';
+      self.newItem.name = "";
+      self.newItem.link = "";
     },
 
     removeItem(idToRemove) {
       const self = this;
 
       // get items to keep
-      self.blockItems = self.blockItems.filter(item => {
+      self.blockItems = self.blockItems.filter((item) => {
         return item.id !== idToRemove;
       });
 
@@ -348,11 +350,11 @@ export default {
       // get number of items and set row height
       const numberOfItems = self.blockItems.length;
       if (numberOfItems < 10) {
-        self.rowHeight = '1';
+        self.rowHeight = "1";
       } else if (numberOfItems >= 10 && numberOfItems < 20) {
-        self.rowHeight = '2';
+        self.rowHeight = "2";
       } else {
-        self.rowHeight = '3';
+        self.rowHeight = "3";
       }
     },
 
@@ -360,7 +362,7 @@ export default {
       const self = this;
 
       // get previous selected color and set to false
-      const previousColor = self.blockColors.filter(item => {
+      const previousColor = self.blockColors.filter((item) => {
         return item.selected;
       })[0];
 
@@ -370,24 +372,26 @@ export default {
       }
 
       // set clicked color to selected
-      self.blockColors.filter(item => {
+      self.blockColors.filter((item) => {
         return item.id === colorId;
       })[0].selected = true;
 
       // save to data
-      self.activeColor = self.blockColors.filter(item => { return item.selected })[0].name;
+      self.activeColor = self.blockColors.filter((item) => {
+        return item.selected;
+      })[0].name;
     },
 
     getSelectedColor() {
       const self = this;
-      const selectedColor = self.blockColors.filter(item => {
+      const selectedColor = self.blockColors.filter((item) => {
         return item.selected === true;
       })[0];
     },
 
     switchTabs(activeTab) {
       const self = this;
-      if (activeTab === 'heading') {
+      if (activeTab === "heading") {
         self.groupEditable = true;
         self.itemEditable = false;
       } else {
@@ -400,40 +404,47 @@ export default {
       const self = this;
       self.showIcons = true;
       self.selectedItemId = itemIdToChange;
-      self.currentIcon = iconName || newItem.icon || 'tag';
+      self.currentIcon = iconName || newItem.icon || "tag";
     },
 
     setIcon(iconName, itemIdToChange) {
       const self = this;
       self.showIcons = false;
-      if (itemIdToChange === '') {
+      if (itemIdToChange === "") {
         self.newItem.icon = iconName;
       } else {
-        self.blockItems.filter(item => {
+        const targetItem = self.blockItems.find((item) => {
           return item.id === itemIdToChange;
-        })[0].icon = iconName;
+        });
+        if (targetItem) {
+          targetItem.icon = iconName;
+        }
       }
     },
 
     generateUniqueId() {
-      return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-        var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
-        return v.toString(16);
-      });
+      return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(
+        /[xy]/g,
+        function (c) {
+          var r = (Math.random() * 16) | 0,
+            v = c == "x" ? r : (r & 0x3) | 0x8;
+          return v.toString(16);
+        }
+      );
     },
 
     triggerDataUpdate() {
       // console.log('edited')
-      this.$emit('updateBlocks', this.$data);
+      this.$emit("updateBlocks", this.$data);
     },
 
     getData() {
       const self = this;
       try {
-        chrome.storage.local.get('blocks', result => {
+        chrome.storage.local.get("blocks", (result) => {
           if (result.blocks !== undefined && result.blocks.length) {
             const allBlocks = result.blocks;
-            allBlocks.forEach(item => {
+            allBlocks.forEach((item) => {
               if (item.id === self.id) {
                 self.blockHeading = item.blockHeading || self.blockHeading;
                 self.activeColor = item.activeColor || self.activeColor;
@@ -446,9 +457,9 @@ export default {
           }
         });
       } catch (error) {
-        if (localStorage.getItem('blocks')) {
-          const allBlocks = JSON.parse(localStorage.getItem('blocks'));
-          allBlocks.forEach(item => {
+        if (localStorage.getItem("blocks")) {
+          const allBlocks = JSON.parse(localStorage.getItem("blocks"));
+          allBlocks.forEach((item) => {
             if (item.id === self.id) {
               self.blockHeading = item.blockHeading || self.blockHeading;
               self.activeColor = item.activeColor || self.activeColor;
@@ -474,12 +485,13 @@ export default {
     },
     globalEditable() {
       if (!this.globalEditable) this.blockEditable = false;
-    }
-  }
+    },
+  },
 };
 </script>
 
 <style scoped lang="scss">
+@use "sass:color";
 
 // colors
 $c-black: #293847;
@@ -494,8 +506,8 @@ $c1-third: #ee6161;
 $c1-fourth: #ecd261;
 
 // fonts
-$f1-main: 'Merriweather', 'Times New Roman', serif;
-$f1-second: 'Open Sans', 'Helvetica', sans-serif;
+$f1-main: "Merriweather", "Times New Roman", serif;
+$f1-second: "Open Sans", "Helvetica", sans-serif;
 
 h1,
 h2,
@@ -534,7 +546,7 @@ h3 {
   }
 
   &.dark {
-    background-color: darken($c-black, 5%);
+    background-color: color.adjust($c-black, $lightness: -5%);
 
     .tab__item {
       border-color: $c-black;
@@ -553,7 +565,7 @@ h3 {
     }
 
     .color {
-      border-color: darken($c-black, 5%);
+      border-color: color.adjust($c-black, $lightness: -5%);
     }
 
     .link,
@@ -567,11 +579,11 @@ h3 {
 
       input {
         color: $c1-main;
-        background-color: darken($c-black, 5%);
-        border-color: lighten($c-black, 5%);
+        background-color: color.adjust($c-black, $lightness: -5%);
+        border-color: color.adjust($c-black, $lightness: 5%);
 
         &::placeholder {
-          color: lighten($c-black, 5%);
+          color: color.adjust($c-black, $lightness: 5%);
         }
       }
 
@@ -691,22 +703,20 @@ h3 {
   color: $c1-main;
   margin-top: 1em;
   font-family: $f1-second;
-  font-size: 0.89rem;
+  font-size: 1rem;
   font-weight: 700;
   text-align: left;
   text-transform: uppercase;
 }
 
 .section {
-
   &:hover {
-
     .icon--indicator {
-      color: darken($c1-main, 10%);
+      color: color.adjust($c1-main, $lightness: -10%);
     }
 
     a {
-      color: darken($c1-main, 10%);
+      color: color.adjust($c1-main, $lightness: -10%);
       text-decoration: underline;
     }
   }
@@ -730,7 +740,7 @@ h3 {
     background-color: transparent;
     border: 1px dashed $c1-grey;
     font-weight: bold;
-    font-size: 0.89rem;
+    font-size: 1rem;
     padding: 0;
     text-align: left;
     text-transform: uppercase;
@@ -759,7 +769,7 @@ h3 {
     border: 1px solid $c2-grey;
     border-bottom: 0;
     color: $c1-main;
-    font-size: 0.89rem;
+    font-size: 1rem;
     font-weight: bold;
     padding: 0.5em 2em;
     margin-right: 0.5em;
@@ -785,7 +795,7 @@ form {
   input {
     color: $c1-main;
     font-family: $f1-main;
-    font-size: 0.89rem;
+    font-size: 1rem;
     font-weight: 300;
     padding: 0.5em 0.9em;
     margin-bottom: 0.5em;
@@ -812,7 +822,7 @@ form {
     font-family: $f1-second;
     border: 0;
     cursor: pointer;
-    font-size: 0.89rem;
+    font-size: 1rem;
     font-weight: bold;
     padding: 0.5em 1.7em;
     align-self: flex-start;
@@ -822,11 +832,11 @@ form {
 
     &:focus {
       outline: 0;
-      background-color: darken($c1-main, 10%);
+      background-color: color.adjust($c1-main, $lightness: -10%);
     }
 
     &:hover {
-      background-color: darken($c1-main, 5%);
+      background-color: color.adjust($c1-main, $lightness: -5%);
     }
   }
 
@@ -915,7 +925,6 @@ li {
   }
 
   &:first-child {
-
     h3,
     .section__input {
       margin-top: 0;
@@ -949,7 +958,7 @@ li {
     box-shadow: 1px 1px 5px -1px rgba(0, 0, 0, 0.2);
 
     &:hover {
-      background-color: darken($c1-main, 5%);
+      background-color: color.adjust($c1-main, $lightness: -5%);
     }
 
     &--close {
@@ -1013,7 +1022,7 @@ li {
       background-color: $c1-third;
 
       &:hover {
-        background-color: darken($c1-third, 5%);
+        background-color: color.adjust($c1-third, $lightness: -5%);
       }
     }
 
@@ -1021,7 +1030,7 @@ li {
       background-color: $c2-grey;
 
       &:hover {
-        background-color: darken($c2-grey, 5%);
+        background-color: color.adjust($c2-grey, $lightness: -5%);
       }
 
       .icon {
@@ -1042,7 +1051,7 @@ a,
   display: block;
   color: $c1-main;
   font-family: $f1-main;
-  font-size: 0.89rem;
+  font-size: 1rem;
   font-weight: 300;
   text-decoration: none;
 }

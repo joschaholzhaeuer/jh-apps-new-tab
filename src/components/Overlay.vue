@@ -1,408 +1,390 @@
 <template>
-  <div
-    :class="{ rounded: styleRounded }"
-    class="overlay">
+  <div :class="{ rounded: styleRounded }" class="overlay">
     <ul>
-      <li
-        v-for="icon in icons"
-        :key="icon.id">
+      <li v-for="icon in icons" :key="icon.id">
         <span
           @click="selectIcon(icon.id)"
           :class="[{ isSelected: icon.selected }, activeColor]"
-          class="icon-wrapper">
-          <icon
-            :name="icon.name"
-            class="icon">
-          </icon>
+          class="icon-wrapper"
+        >
+          <font-awesome-icon :icon="icon.name" class="icon" />
         </span>
       </li>
     </ul>
     <button
       v-if="selectedItemId !== ''"
-      @click="$emit('setIcon', selectedItemName, selectedItemId)">
+      @click="$emit('setIcon', selectedItemName, selectedItemId)"
+    >
       Change Icon
     </button>
-    <button
-      v-else
-      @click="$emit('setIcon', selectedItemName, '')">
+    <button v-else @click="$emit('setIcon', selectedItemName, '')">
       Choose Icon
     </button>
   </div>
 </template>
 
 <script>
-import 'vue-awesome/icons';
-import Icon from 'vue-awesome/components/Icon';
-
 let nextIconId = 1;
 
 export default {
+  name: "Overlay",
 
-  name: 'Overlay',
+  components: {},
 
-  components: {
-    Icon,
-  },
-
-  props: [
-    'activeColor',
-    'styleRounded',
-    'currentIcon',
-    'selectedItemId',
-  ],
+  props: ["activeColor", "styleRounded", "currentIcon", "selectedItemId"],
 
   data() {
     return {
-      selectedItemName: '',
+      selectedItemName: "",
       icons: [
         {
           id: nextIconId++,
-          name: 'tag',
+          name: "tag",
           selected: false,
         },
         {
           id: nextIconId++,
-          name: 'envelope',
+          name: "envelope",
           selected: false,
         },
         {
           id: nextIconId++,
-          name: 'desktop',
+          name: "desktop",
           selected: false,
         },
         {
           id: nextIconId++,
-          name: 'headphones',
+          name: "headphones",
           selected: false,
         },
         {
           id: nextIconId++,
-          name: 'hashtag',
+          name: "hashtag",
           selected: false,
         },
         {
           id: nextIconId++,
-          name: 'calendar',
+          name: "calendar",
           selected: false,
         },
         {
           id: nextIconId++,
-          name: 'file',
+          name: "file",
           selected: false,
         },
         {
           id: nextIconId++,
-          name: 'briefcase',
+          name: "briefcase",
           selected: false,
         },
         {
           id: nextIconId++,
-          name: 'server',
+          name: "server",
           selected: false,
         },
         {
           id: nextIconId++,
-          name: 'train',
+          name: "train",
           selected: false,
         },
         {
           id: nextIconId++,
-          name: 'cutlery',
+          name: "cutlery",
           selected: false,
         },
         {
           id: nextIconId++,
-          name: 'comment',
+          name: "comment",
           selected: false,
         },
         {
           id: nextIconId++,
-          name: 'tv',
+          name: "tv",
           selected: false,
         },
         {
           id: nextIconId++,
-          name: 'credit-card',
+          name: "credit-card",
           selected: false,
         },
         {
           id: nextIconId++,
-          name: 'heart',
+          name: "heart",
           selected: false,
         },
         {
           id: nextIconId++,
-          name: 'link',
+          name: "link",
           selected: false,
         },
         {
           id: nextIconId++,
-          name: 'anchor',
+          name: "anchor",
           selected: false,
         },
         {
           id: nextIconId++,
-          name: 'arrow-right',
+          name: "arrow-right",
           selected: false,
         },
         {
           id: nextIconId++,
-          name: 'music',
+          name: "music",
           selected: false,
         },
         {
           id: nextIconId++,
-          name: 'play',
+          name: "play",
           selected: false,
         },
         {
           id: nextIconId++,
-          name: 'rss',
+          name: "rss",
           selected: false,
         },
         {
           id: nextIconId++,
-          name: 'book',
+          name: "book",
           selected: false,
         },
         {
           id: nextIconId++,
-          name: 'folder',
+          name: "folder",
           selected: false,
         },
         {
           id: nextIconId++,
-          name: 'shopping-bag',
+          name: "shopping-bag",
           selected: false,
         },
         {
           id: nextIconId++,
-          name: 'globe',
+          name: "globe",
           selected: false,
         },
         {
           id: nextIconId++,
-          name: 'key',
+          name: "key",
           selected: false,
         },
         {
           id: nextIconId++,
-          name: 'star',
+          name: "star",
           selected: false,
         },
         {
           id: nextIconId++,
-          name: 'cog',
+          name: "cog",
           selected: false,
         },
         {
           id: nextIconId++,
-          name: 'bed',
+          name: "bed",
           selected: false,
         },
         {
           id: nextIconId++,
-          name: 'bell',
+          name: "bell",
           selected: false,
         },
         {
           id: nextIconId++,
-          name: 'ambulance',
+          name: "ambulance",
           selected: false,
         },
         {
           id: nextIconId++,
-          name: 'cloud',
+          name: "cloud",
           selected: false,
         },
         {
           id: nextIconId++,
-          name: 'asterisk',
+          name: "asterisk",
           selected: false,
         },
         {
           id: nextIconId++,
-          name: 'beer',
+          name: "beer",
           selected: false,
         },
         {
           id: nextIconId++,
-          name: 'book',
+          name: "book",
           selected: false,
         },
         {
           id: nextIconId++,
-          name: 'bookmark',
+          name: "bookmark",
           selected: false,
         },
         {
           id: nextIconId++,
-          name: 'bug',
+          name: "bug",
           selected: false,
         },
         {
           id: nextIconId++,
-          name: 'camera',
+          name: "camera",
           selected: false,
         },
         {
           id: nextIconId++,
-          name: 'car',
+          name: "car",
           selected: false,
         },
         {
           id: nextIconId++,
-          name: 'check',
+          name: "check",
           selected: false,
         },
         {
           id: nextIconId++,
-          name: 'clipboard',
+          name: "clipboard",
           selected: false,
         },
         {
           id: nextIconId++,
-          name: 'code',
+          name: "code",
           selected: false,
         },
         {
           id: nextIconId++,
-          name: 'coffee',
+          name: "coffee",
           selected: false,
         },
         {
           id: nextIconId++,
-          name: 'cube',
+          name: "cube",
           selected: false,
         },
         {
           id: nextIconId++,
-          name: 'database',
+          name: "database",
           selected: false,
         },
         {
           id: nextIconId++,
-          name: 'edit',
+          name: "edit",
           selected: false,
         },
         {
           id: nextIconId++,
-          name: 'flag',
+          name: "flag",
           selected: false,
         },
         {
           id: nextIconId++,
-          name: 'eye',
+          name: "eye",
           selected: false,
         },
         {
           id: nextIconId++,
-          name: 'female',
+          name: "female",
           selected: false,
         },
         {
           id: nextIconId++,
-          name: 'male',
+          name: "male",
           selected: false,
         },
         {
           id: nextIconId++,
-          name: 'folder-open',
+          name: "folder-open",
           selected: false,
         },
         {
           id: nextIconId++,
-          name: 'home',
+          name: "home",
           selected: false,
         },
         {
           id: nextIconId++,
-          name: 'gift',
+          name: "gift",
           selected: false,
         },
         {
           id: nextIconId++,
-          name: 'id-card',
+          name: "id-card",
           selected: false,
         },
         {
           id: nextIconId++,
-          name: 'image',
+          name: "image",
           selected: false,
         },
         {
           id: nextIconId++,
-          name: 'microphone',
+          name: "microphone",
           selected: false,
         },
         {
           id: nextIconId++,
-          name: 'lock',
+          name: "lock",
           selected: false,
         },
         {
           id: nextIconId++,
-          name: 'shopping-cart',
+          name: "shopping-cart",
           selected: false,
         },
         {
           id: nextIconId++,
-          name: 'phone',
+          name: "phone",
           selected: false,
         },
         {
           id: nextIconId++,
-          name: 'question',
+          name: "question",
           selected: false,
         },
         {
           id: nextIconId++,
-          name: 'search',
+          name: "search",
           selected: false,
         },
         {
           id: nextIconId++,
-          name: 'shield',
+          name: "shield",
           selected: false,
         },
         {
           id: nextIconId++,
-          name: 'tint',
+          name: "tint",
           selected: false,
         },
         {
           id: nextIconId++,
-          name: 'tree',
+          name: "tree",
           selected: false,
         },
         {
           id: nextIconId++,
-          name: 'trash',
+          name: "trash",
           selected: false,
         },
         {
           id: nextIconId++,
-          name: 'trophy',
+          name: "trophy",
           selected: false,
         },
         {
           id: nextIconId++,
-          name: 'user',
+          name: "user",
           selected: false,
         },
         {
           id: nextIconId++,
-          name: 'wifi',
+          name: "wifi",
           selected: false,
         },
         {
           id: nextIconId++,
-          name: 'wrench',
+          name: "wrench",
           selected: false,
         },
         {
           id: nextIconId++,
-          name: 'users',
+          name: "users",
           selected: false,
         },
       ],
@@ -410,32 +392,35 @@ export default {
   },
 
   methods: {
-
     selectIcon(idToSelect) {
       var self = this;
 
       // deselect currently selected item
-      self.icons.filter(item => {
-        if (item.selected) { item.selected = false };
+      self.icons.filter((item) => {
+        if (item.selected) {
+          item.selected = false;
+        }
       });
 
       // select clicked item
-      self.icons.filter(item => {
+      self.icons.filter((item) => {
         if (item.id === idToSelect) {
           item.selected = true;
           self.selectedItemName = item.name;
-        };
+        }
       });
     },
 
     setCurrentIcon() {
       const self = this;
-      const iconToSelect = self.icons.filter(icon => {
+      const iconToSelect = self.icons.find((icon) => {
         return icon.name === self.currentIcon;
-      })[0];
-      iconToSelect.selected = true;
-      self.selectedItemName = iconToSelect.name;
-    }
+      });
+      if (iconToSelect) {
+        iconToSelect.selected = true;
+        self.selectedItemName = iconToSelect.name;
+      }
+    },
   },
 
   created() {
@@ -445,6 +430,7 @@ export default {
 </script>
 
 <style scoped lang="scss">
+@use "sass:color";
 
 // colors
 $c-black: #2c3e50;
@@ -459,8 +445,8 @@ $c1-third: #ee6161;
 $c1-fourth: #ecd261;
 
 // fonts
-$f1-main: 'Merriweather', 'Times New Roman', serif;
-$f1-second: 'Open Sans', 'Helvetica', sans-serif;
+$f1-main: "Merriweather", "Times New Roman", serif;
+$f1-second: "Open Sans", "Helvetica", sans-serif;
 
 .overlay {
   position: absolute;
@@ -534,7 +520,7 @@ li {
     }
 
     &:hover {
-      background-color: darken($c1-main, 5%);
+      background-color: color.adjust($c1-main, $lightness: -5%);
       box-shadow: 1px 1px 5px -1px rgba(0, 0, 0, 0.2);
 
       .icon {
@@ -547,7 +533,6 @@ li {
       height: 16px;
     }
   }
-
 }
 
 button {
@@ -556,7 +541,7 @@ button {
   font-family: $f1-second;
   border: 0;
   cursor: pointer;
-  font-size: 0.89rem;
+  font-size: 1rem;
   font-weight: bold;
   padding: 0.5em 1.7em;
   align-self: flex-start;
@@ -566,11 +551,11 @@ button {
 
   &:focus {
     outline: 0;
-    background-color: darken($c1-main, 10%);
+    background-color: color.adjust($c1-main, $lightness: -10%);
   }
 
   &:hover {
-    background-color: darken($c1-main, 5%);
+    background-color: color.adjust($c1-main, $lightness: -5%);
   }
 }
 </style>

@@ -1,93 +1,68 @@
 <template>
-  <div id="app" :class="[{rounded: style.rounded}, {dark: style.dark}]">
+  <div id="app" :class="[{ rounded: style.rounded }, { dark: style.dark }]">
     <draggable
       v-model="blocks"
-      :options="{ disabled: editable ? false : true, handle: '.block__handle' }"
-      class="grid">
-      <Block
-        v-for="(block, index) in blocks"
-        :globalEditable="editable"
-        :styleRounded="style.rounded"
-        :styleDark="style.dark"
-        :block="block"
-        :index="index"
-        :key="block.id"
-        @deleteBlock="deleteBlock"
-        @updateBlocks="updateBlocks"
-      />
+      :disabled="editable ? false : true"
+      handle=".block__handle"
+      class="grid"
+      item-key="id"
+    >
+      <template #item="{ element: block, index }">
+        <Block
+          :globalEditable="editable"
+          :styleRounded="style.rounded"
+          :styleDark="style.dark"
+          :block="block"
+          :index="index"
+          :key="block.id"
+          @deleteBlock="deleteBlock"
+          @updateBlocks="updateBlocks"
+        />
+      </template>
     </draggable>
-    <button
-      v-if="editable"
-      class="block-preview">
-      <span
-        @click="addBlock"
-        class="icon-wrapper">
-        <icon
-          name="plus"
-          class="icon">
-        </icon>
+    <button v-if="editable" class="block-preview">
+      <span @click="addBlock" class="icon-wrapper">
+        <font-awesome-icon icon="plus" class="icon" />
       </span>
     </button>
-    <button
-      @click="toggleEditable()"
-      class="btn-settings">
+    <button @click="toggleEditable()" class="btn-settings">
       <span v-if="editable">Save</span>
       <span v-else>Edit</span>
-      <icon
-        v-if="editable"
-        name="check"
-        class="icon">
-      </icon>
-      <icon
-        v-else
-        name="cogs"
-        class="icon">
-      </icon>
+      <font-awesome-icon v-if="editable" icon="check" class="icon" />
+      <font-awesome-icon v-else icon="cogs" class="icon" />
     </button>
     <button
       v-if="editable"
       @click="toggleColored()"
-      class="btn-settings btn-settings--2">
+      class="btn-settings btn-settings--2"
+    >
       <span v-if="style.dark">Toggle Light Mode</span>
       <span v-else>Toggle Dark Mode</span>
-      <icon
-        name="tint"
-        class="icon">
-      </icon>
+      <font-awesome-icon icon="tint" class="icon" />
     </button>
     <button
       v-if="editable"
       @click="toggleRoundedCorners()"
-      class="btn-settings btn-settings--3">
+      class="btn-settings btn-settings--3"
+    >
       <span>Toggle Rounded Corners</span>
-      <icon
-        name="square"
-        class="icon">
-      </icon>
+      <font-awesome-icon icon="square" class="icon" />
     </button>
-    <footer
-      v-if="editable"
-      class="footer">
+    <footer v-if="editable" class="footer">
       <span>made by <a href="https://dreiqbik.de">dreiQBIK</a></span>
     </footer>
   </div>
 </template>
 
-
-
 <script>
-import 'vue-awesome/icons';
-import Block from "./components/Block";
-import draggable from 'vuedraggable';
-import Icon from 'vue-awesome/components/Icon';
+import Block from "./components/Block.vue";
+import draggable from "vuedraggable";
 
 export default {
-
   name: "App",
 
   components: {
     Block,
-    Icon,
     draggable,
   },
 
@@ -98,12 +73,11 @@ export default {
       style: {
         dark: false,
         rounded: true,
-      }
+      },
     };
   },
 
   methods: {
-
     toggleEditable() {
       const self = this;
       self.editable = !self.editable;
@@ -112,22 +86,22 @@ export default {
     toggleRoundedCorners() {
       const self = this;
       self.style.rounded = !self.style.rounded;
-      self.saveToStorage({style: self.style}, 'style', self.style);
+      self.saveToStorage({ style: self.style }, "style", self.style);
     },
 
     toggleColored() {
       const self = this;
       self.style.dark = !self.style.dark;
       self.adjustBgColor();
-      self.saveToStorage({style: self.style}, 'style', self.style);
+      self.saveToStorage({ style: self.style }, "style", self.style);
     },
 
     adjustBgColor() {
       const self = this;
       if (self.style.dark) {
-        document.querySelector('body').style.backgroundColor = '#293847';
+        document.querySelector("body").style.backgroundColor = "#293847";
       } else {
-        document.querySelector('body').style.backgroundColor = '#eaf0f6';
+        document.querySelector("body").style.backgroundColor = "#eaf0f6";
       }
     },
 
@@ -146,7 +120,7 @@ export default {
 
     updateBlocks(blockData) {
       const self = this;
-      self.blocks.forEach(item => {
+      self.blocks.forEach((item) => {
         if (item.id === blockData.id) {
           item.blockHeading = blockData.blockHeading;
           item.activeColor = blockData.activeColor;
@@ -157,7 +131,7 @@ export default {
           item.blockEditable = false;
         }
       });
-      self.saveToStorage({blocks: self.blocks}, 'blocks', self.blocks);
+      self.saveToStorage({ blocks: self.blocks }, "blocks", self.blocks);
     },
 
     saveToStorage(object, stringName, value) {
@@ -170,28 +144,33 @@ export default {
     },
 
     generateUniqueId() {
-      return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-        var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
-        return v.toString(16);
-      });
+      return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(
+        /[xy]/g,
+        function (c) {
+          var r = (Math.random() * 16) | 0,
+            v = c == "x" ? r : (r & 0x3) | 0x8;
+          return v.toString(16);
+        }
+      );
     },
 
     getData() {
       const self = this;
       try {
-        chrome.storage.local.get('blocks', result => {
-          if (result.blocks !== undefined && result.blocks.length) self.blocks = result.blocks;
+        chrome.storage.local.get("blocks", (result) => {
+          if (result.blocks !== undefined && result.blocks.length)
+            self.blocks = result.blocks;
         });
-        chrome.storage.local.get('style', result => {
+        chrome.storage.local.get("style", (result) => {
           if (result.style !== undefined) self.style = result.style;
           self.adjustBgColor();
         });
       } catch (error) {
-        if (localStorage.getItem('blocks')) {
-          self.blocks = JSON.parse(localStorage.getItem('blocks'));
+        if (localStorage.getItem("blocks")) {
+          self.blocks = JSON.parse(localStorage.getItem("blocks"));
         }
-        if (localStorage.getItem('style')) {
-          self.style = JSON.parse(localStorage.getItem('style'));
+        if (localStorage.getItem("style")) {
+          self.style = JSON.parse(localStorage.getItem("style"));
         }
       }
     },
@@ -207,27 +186,26 @@ export default {
       handler() {
         const self = this;
         // console.log('blocks changed blocks')
-        self.saveToStorage({blocks: self.blocks}, 'blocks', self.blocks);
+        self.saveToStorage({ blocks: self.blocks }, "blocks", self.blocks);
         if (self.blocks !== undefined && self.blocks.length === 0) {
           self.editable = true;
         }
       },
-      deep: true
+      deep: true,
     },
     editable: {
       handler() {
         const self = this;
         // console.log('blocks changed editable')
-        self.saveToStorage({blocks: self.blocks}, 'blocks', self.blocks);
+        self.saveToStorage({ blocks: self.blocks }, "blocks", self.blocks);
       },
     },
-  }
+  },
 };
 </script>
 
-
-
 <style lang="scss">
+@use "sass:color";
 
 // colors
 $c-black: #293847;
@@ -242,18 +220,24 @@ $c1-third: #ee6161;
 $c1-fourth: #ecd261;
 
 // fonts
-$f1-main: 'Merriweather', 'Times New Roman', serif;
-$f1-second: 'Open Sans', 'Helvetica', Arial, sans-serif;
+$f1-main: "Merriweather", "Times New Roman", serif;
+$f1-second: "Open Sans", "Helvetica", Arial, sans-serif;
 
 // breakpoints
 @mixin b-small {
-  @media (min-width: 765px) { @content; }
+  @media (min-width: 765px) {
+    @content;
+  }
 }
 @mixin b-medium {
-  @media (min-width: 1140px) { @content; }
+  @media (min-width: 1140px) {
+    @content;
+  }
 }
 @mixin b-large {
-  @media (min-width: 1610px) { @content; }
+  @media (min-width: 1610px) {
+    @content;
+  }
 }
 
 html {
@@ -292,9 +276,8 @@ body {
   }
 
   &.dark {
-
     footer {
-      color: lighten($c-black, 5%);
+      color: color.adjust($c-black, $lightness: 5%);
     }
   }
 }
@@ -343,11 +326,11 @@ body {
 
     &:focus {
       outline: 0;
-      background-color: darken($c1-main, 10%);
+      background-color: color.adjust($c1-main, $lightness: -10%);
     }
 
     &:hover {
-      background-color: darken($c1-main, 5%);
+      background-color: color.adjust($c1-main, $lightness: -5%);
     }
   }
 
@@ -375,11 +358,11 @@ body {
 
   &:focus {
     outline: 0;
-    background-color: darken($c1-main, 10%);
+    background-color: color.adjust($c1-main, $lightness: -10%);
   }
 
   &:hover {
-    background-color: darken($c1-main, 5%);
+    background-color: color.adjust($c1-main, $lightness: -5%);
 
     span {
       display: flex;
