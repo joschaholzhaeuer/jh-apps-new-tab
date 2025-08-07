@@ -83,17 +83,17 @@ export default {
       self.editable = !self.editable;
     },
 
-    toggleRoundedCorners() {
+    async toggleRoundedCorners() {
       const self = this;
       self.style.rounded = !self.style.rounded;
-      self.saveToStorage({ style: self.style }, "style", self.style);
+      await self.saveToStorage({ style: self.style }, "style", self.style);
     },
 
-    toggleColored() {
+    async toggleColored() {
       const self = this;
       self.style.dark = !self.style.dark;
       self.adjustBgColor();
-      self.saveToStorage({ style: self.style }, "style", self.style);
+      await self.saveToStorage({ style: self.style }, "style", self.style);
     },
 
     adjustBgColor() {
@@ -118,7 +118,7 @@ export default {
       self.blocks.splice(index, 1);
     },
 
-    updateBlocks(blockData) {
+    async updateBlocks(blockData) {
       const self = this;
       self.blocks.forEach((item) => {
         if (item.id === blockData.id) {
@@ -131,14 +131,35 @@ export default {
           item.blockEditable = false;
         }
       });
-      self.saveToStorage({ blocks: self.blocks }, "blocks", self.blocks);
+      await self.saveToStorage({ blocks: self.blocks }, "blocks", self.blocks);
     },
 
-    saveToStorage(object, stringName, value) {
+    async saveToStorage(object, stringName, value) {
       const self = this;
       try {
-        chrome.storage.local.set(object);
+        // Check if we're in a Chrome extension context
+        if (
+          typeof chrome !== "undefined" &&
+          chrome.storage &&
+          chrome.storage.local
+        ) {
+          // Chrome storage is async - use Promise wrapper
+          await new Promise((resolve, reject) => {
+            chrome.storage.local.set(object, () => {
+              if (chrome.runtime.lastError) {
+                reject(new Error(chrome.runtime.lastError.message));
+              } else {
+                resolve();
+              }
+            });
+          });
+          console.log("Saved to chrome.storage:", object);
+        } else {
+          throw new Error("Chrome storage not available");
+        }
       } catch (error) {
+        console.log("Falling back to localStorage:", error.message);
+        // localStorage is synchronous - no await needed
         localStorage.setItem(stringName, JSON.stringify(value));
       }
     },
@@ -154,39 +175,82 @@ export default {
       );
     },
 
-    getData() {
+    async getData() {
       const self = this;
       try {
-        chrome.storage.local.get("blocks", (result) => {
-          if (result.blocks !== undefined && result.blocks.length)
-            self.blocks = result.blocks;
-        });
-        chrome.storage.local.get("style", (result) => {
-          if (result.style !== undefined) self.style = result.style;
+        // Check if we're in a Chrome extension context
+        if (
+          typeof chrome !== "undefined" &&
+          chrome.storage &&
+          chrome.storage.local
+        ) {
+          // Chrome storage is async - use Promise wrapper
+          const [blocksResult, styleResult] = await Promise.all([
+            new Promise((resolve, reject) => {
+              chrome.storage.local.get("blocks", (result) => {
+                if (chrome.runtime.lastError) {
+                  reject(new Error(chrome.runtime.lastError.message));
+                } else {
+                  resolve(result);
+                }
+              });
+            }),
+            new Promise((resolve, reject) => {
+              chrome.storage.local.get("style", (result) => {
+                if (chrome.runtime.lastError) {
+                  reject(new Error(chrome.runtime.lastError.message));
+                } else {
+                  resolve(result);
+                }
+              });
+            }),
+          ]);
+
+          if (blocksResult.blocks !== undefined && blocksResult.blocks.length) {
+            self.blocks = blocksResult.blocks;
+            console.log(
+              "Loaded blocks from chrome.storage:",
+              blocksResult.blocks
+            );
+          }
+
+          if (styleResult.style !== undefined) {
+            self.style = styleResult.style;
+            console.log("Loaded style from chrome.storage:", styleResult.style);
+          }
           self.adjustBgColor();
-        });
+        } else {
+          throw new Error("Chrome storage not available");
+        }
       } catch (error) {
+        console.log("Falling back to localStorage:", error.message);
+        // localStorage is synchronous - no await needed
         if (localStorage.getItem("blocks")) {
           self.blocks = JSON.parse(localStorage.getItem("blocks"));
         }
         if (localStorage.getItem("style")) {
           self.style = JSON.parse(localStorage.getItem("style"));
         }
+        self.adjustBgColor();
       }
     },
   },
 
-  created() {
+  async created() {
     const self = this;
-    self.getData();
+    await self.getData();
   },
 
   watch: {
     blocks: {
-      handler() {
+      async handler() {
         const self = this;
-        // console.log('blocks changed blocks')
-        self.saveToStorage({ blocks: self.blocks }, "blocks", self.blocks);
+        console.log("blocks changed, saving...");
+        await self.saveToStorage(
+          { blocks: self.blocks },
+          "blocks",
+          self.blocks
+        );
         if (self.blocks !== undefined && self.blocks.length === 0) {
           self.editable = true;
         }
@@ -194,10 +258,14 @@ export default {
       deep: true,
     },
     editable: {
-      handler() {
+      async handler() {
         const self = this;
-        // console.log('blocks changed editable')
-        self.saveToStorage({ blocks: self.blocks }, "blocks", self.blocks);
+        console.log("editable changed, saving blocks...");
+        await self.saveToStorage(
+          { blocks: self.blocks },
+          "blocks",
+          self.blocks
+        );
       },
     },
   },

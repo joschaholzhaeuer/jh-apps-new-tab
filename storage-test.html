@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Storage Test</title>
+  </head>
+  <body>
+    <h1>Chrome Extension Storage Test</h1>
+    <div>
+      <button onclick="testSave()">Test Save</button>
+      <button onclick="testLoad()">Test Load</button>
+      <button onclick="clearStorage()">Clear Storage</button>
+    </div>
+    <div id="output"></div>
+
+    <script>
+      function log(message) {
+        const output = document.getElementById("output");
+        output.innerHTML += "<p>" + message + "</p>";
+        console.log(message);
+      }
+
+      async function testSave() {
+        log("Testing save...");
+        const testData = {
+          blocks: [{ id: "test1", blockHeading: "Test Block", blockItems: [] }],
+          style: { dark: false, rounded: true },
+        };
+
+        try {
+          if (
+            typeof chrome !== "undefined" &&
+            chrome.storage &&
+            chrome.storage.local
+          ) {
+            await chrome.storage.local.set(testData);
+            log("✅ Saved to chrome.storage.local");
+          } else {
+            localStorage.setItem("blocks", JSON.stringify(testData.blocks));
+            localStorage.setItem("style", JSON.stringify(testData.style));
+            log("✅ Saved to localStorage");
+          }
+        } catch (error) {
+          log("❌ Error saving: " + error.message);
+        }
+      }
+
+      async function testLoad() {
+        log("Testing load...");
+        try {
+          if (
+            typeof chrome !== "undefined" &&
+            chrome.storage &&
+            chrome.storage.local
+          ) {
+            const result = await chrome.storage.local.get(["blocks", "style"]);
+            log(
+              "✅ Loaded from chrome.storage.local: " + JSON.stringify(result)
+            );
+          } else {
+            const blocks = localStorage.getItem("blocks");
+            const style = localStorage.getItem("style");
+            log(
+              "✅ Loaded from localStorage - blocks: " +
+                blocks +
+                ", style: " +
+                style
+            );
+          }
+        } catch (error) {
+          log("❌ Error loading: " + error.message);
+        }
+      }
+
+      async function clearStorage() {
+        log("Clearing storage...");
+        try {
+          if (
+            typeof chrome !== "undefined" &&
+            chrome.storage &&
+            chrome.storage.local
+          ) {
+            await chrome.storage.local.clear();
+            log("✅ Cleared chrome.storage.local");
+          } else {
+            localStorage.removeItem("blocks");
+            localStorage.removeItem("style");
+            log("✅ Cleared localStorage");
+          }
+        } catch (error) {
+          log("❌ Error clearing: " + error.message);
+        }
+      }
+
+      // Test on page load
+      window.onload = function () {
+        log("Page loaded. Testing storage availability...");
+        if (
+          typeof chrome !== "undefined" &&
+          chrome.storage &&
+          chrome.storage.local
+        ) {
+          log("✅ Chrome storage API is available");
+        } else {
+          log("⚠️ Chrome storage API not available, will use localStorage");
+        }
+      };
+    </script>
+  </body>
+</html>

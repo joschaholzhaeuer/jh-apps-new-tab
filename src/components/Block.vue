@@ -438,10 +438,26 @@ export default {
       this.$emit("updateBlocks", this.$data);
     },
 
-    getData() {
+    async getData() {
       const self = this;
       try {
-        chrome.storage.local.get("blocks", (result) => {
+        // Check if we're in a Chrome extension context
+        if (
+          typeof chrome !== "undefined" &&
+          chrome.storage &&
+          chrome.storage.local
+        ) {
+          // Chrome storage is async - use Promise wrapper
+          const result = await new Promise((resolve, reject) => {
+            chrome.storage.local.get("blocks", (result) => {
+              if (chrome.runtime.lastError) {
+                reject(new Error(chrome.runtime.lastError.message));
+              } else {
+                resolve(result);
+              }
+            });
+          });
+
           if (result.blocks !== undefined && result.blocks.length) {
             const allBlocks = result.blocks;
             allBlocks.forEach((item) => {
@@ -455,8 +471,12 @@ export default {
               }
             });
           }
-        });
+        } else {
+          throw new Error("Chrome storage not available");
+        }
       } catch (error) {
+        console.log("Block.vue falling back to localStorage:", error.message);
+        // localStorage is synchronous - no await needed
         if (localStorage.getItem("blocks")) {
           const allBlocks = JSON.parse(localStorage.getItem("blocks"));
           allBlocks.forEach((item) => {
@@ -474,9 +494,9 @@ export default {
     },
   },
 
-  created() {
+  async created() {
     const self = this;
-    self.getData();
+    await self.getData();
   },
 
   watch: {
