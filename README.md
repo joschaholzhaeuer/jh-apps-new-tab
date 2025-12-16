@@ -1,26 +1,81 @@
-# New Tab Link Collection
+# New Tab Link Collection 🔖
 
-This extension replaces the new tab page with a nice grid view, where you can add your favorite and most frequently used links. The grid is adjustable to your needs and you can sort your links with headings, groups, icons and colors. You can even use drag and drop to move your lists and list items around.
-Check it out at: https://chrome.google.com/webstore/detail/new-tab-link-collection/gophcpnbaafonmeaekpebpdgmmfmnfep
+A beautiful, modern Chrome extension that replaces your new tab page with customizable link collections. Built with Vue.js 3.
 
-## How it looks
+**Version:** 2.2.0
+**Status:** ✅ Production Ready
+**Last Updated:** 2025-12-16
 
-![Image of New Tab Page](src/assets/08.jpg)
+---
 
-## Build Setup
+## ✨ Features
 
-``` bash
-# install dependencies
-npm install
+- 📦 **Customizable Link Blocks** - Organize links into colored blocks
+- 🎨 **Multiple Themes** - Dark mode, light mode, rounded corners
+- 🎯 **Drag & Drop** - Reorder links and blocks easily
+- 🎨 **70+ Icons** - FontAwesome icons for every link
+- 💾 **Auto-Persist** - Data saved in Chrome storage
+- 📤 **Export/Import** - Backup and restore your data
 
-# serve with hot reload at localhost:8080
-npm run dev
+---
 
-# build for production with minification
-npm run build
+## 🚀 Quick Start
 
-# build for production and view the bundle analyzer report
-npm run build --report
+### Development
+
+```bash
+npm install          # Install dependencies
+npm run dev         # Start dev server (http://localhost:5173)
 ```
 
-For a detailed explanation on how things work, check out the [guide](http://vuejs-templates.github.io/webpack/) and [docs for vue-loader](http://vuejs.github.io/vue-loader).
+### Production Build
+
+```bash
+npm run build       # Build to dist/ folder
+```
+
+### Install Extension
+
+1. Build the extension: `npm run build`
+2. Open Chrome → `chrome://extensions/`
+3. Enable "Developer mode" (top right)
+4. Click "Load unpacked"
+5. Select the `dist/` folder
+
+---
+
+## 📁 Project Structure
+
+```
+chrome-extension-new-tab/
+├── src/                 # Source code
+│   ├── components/      # Vue components
+│   ├── services/        # Business logic
+│   ├── constants/       # Configuration
+│   └── utils/           # Utilities
+├── docs/                # Documentation
+├── releases/            # Built packages
+└── public/              # Static assets
+```
+
+---
+
+## 📚 Documentation
+
+- **[Quick Reference](docs/QUICK_REFERENCE.md)** - Developer guide
+- **[Production Release](docs/PRODUCTION_RELEASE.md)** - Latest release notes
+- **[Copilot Instructions](.github/copilot-instructions.md)** - AI assistant guide
+
+---
+
+## 🛠️ Tech Stack
+
+- Vue.js 3 (Options API)
+- Vite
+- SCSS
+- FontAwesome
+- Chrome Storage API
+
+---
+
+**Built with ❤️ using Vue.js and Vite**

@@ -48,15 +48,23 @@
       <span>Toggle Rounded Corners</span>
       <font-awesome-icon icon="square" class="icon" />
     </button>
-    <footer v-if="editable" class="footer">
-      <span>made by <a href="https://dreiqbik.de">dreiQBIK</a></span>
-    </footer>
+    <button
+      v-if="editable"
+      @click="downloadData()"
+      class="btn-settings btn-settings--4"
+    >
+      <span>Download Data</span>
+      <font-awesome-icon icon="download" class="icon" />
+    </button>
   </div>
 </template>
 
 <script>
-import Block from "./components/Block.vue";
 import draggable from "vuedraggable";
+import Block from "./components/Block.vue";
+import { STORAGE_KEYS } from "./constants/storage-keys.js";
+import { StorageService } from "./services/storage.service.js";
+import { generateUniqueId } from "./utils/uuid.js";
 
 export default {
   name: "App",
@@ -78,27 +86,71 @@ export default {
   },
 
   methods: {
-    toggleEditable() {
-      const self = this;
-      self.editable = !self.editable;
+    async toggleEditable() {
+      this.editable = !this.editable;
+
+      // Save when exiting edit mode
+      if (!this.editable) {
+        await this.saveAllData();
+      }
+    },
+
+    async saveAllData() {
+      await StorageService.set(STORAGE_KEYS.BLOCKS, this.blocks);
+      await StorageService.set(STORAGE_KEYS.STYLE, this.style);
     },
 
     async toggleRoundedCorners() {
-      const self = this;
-      self.style.rounded = !self.style.rounded;
-      await self.saveToStorage({ style: self.style }, "style", self.style);
+      this.style.rounded = !this.style.rounded;
+      await StorageService.set(STORAGE_KEYS.STYLE, this.style);
+    },
+
+    async downloadData() {
+      try {
+        // Get all data from storage
+        const result = await StorageService.getMultiple([
+          STORAGE_KEYS.BLOCKS,
+          STORAGE_KEYS.STYLE,
+        ]);
+
+        const allData = {
+          blocks: result[STORAGE_KEYS.BLOCKS] || [],
+          style: result[STORAGE_KEYS.STYLE] || this.style,
+          exportDate: new Date().toISOString(),
+          version: "2.1.0",
+        };
+
+        // Create and download the file
+        const dataStr = JSON.stringify(allData, null, 2);
+        const dataBlob = new Blob([dataStr], { type: "application/json" });
+        const url = URL.createObjectURL(dataBlob);
+
+        try {
+          const link = document.createElement("a");
+          link.href = url;
+          link.download = `new-tab-extension-data-${
+            new Date().toISOString().split("T")[0]
+          }.json`;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        } finally {
+          // Always clean up the URL object
+          URL.revokeObjectURL(url);
+        }
+      } catch (error) {
+        // Silent fail - user will notice if download doesn't work
+      }
     },
 
     async toggleColored() {
-      const self = this;
-      self.style.dark = !self.style.dark;
-      self.adjustBgColor();
-      await self.saveToStorage({ style: self.style }, "style", self.style);
+      this.style.dark = !this.style.dark;
+      this.adjustBgColor();
+      await StorageService.set(STORAGE_KEYS.STYLE, this.style);
     },
 
     adjustBgColor() {
-      const self = this;
-      if (self.style.dark) {
+      if (this.style.dark) {
         document.querySelector("body").style.backgroundColor = "#293847";
       } else {
         document.querySelector("body").style.backgroundColor = "#eaf0f6";
@@ -106,167 +158,65 @@ export default {
     },
 
     addBlock() {
-      const self = this;
-      self.blocks.push({
-        id: self.generateUniqueId(),
+      this.blocks.push({
+        id: generateUniqueId(),
         blockEditable: true,
       });
     },
 
     deleteBlock(index) {
-      const self = this;
-      self.blocks.splice(index, 1);
+      this.blocks.splice(index, 1);
     },
 
-    async updateBlocks(blockData) {
-      const self = this;
-      self.blocks.forEach((item) => {
-        if (item.id === blockData.id) {
-          item.blockHeading = blockData.blockHeading;
-          item.activeColor = blockData.activeColor;
-          item.blockItems = blockData.blockItems;
-          item.blockColors = blockData.blockColors;
-          item.rowHeight = blockData.rowHeight;
+    updateBlocks(blockData) {
+      this.blocks.forEach((block) => {
+        if (block.id === blockData.id) {
+          block.blockHeading = blockData.blockHeading;
+          block.activeColor = blockData.activeColor;
+          block.blockItems = blockData.blockItems;
+          block.blockColors = blockData.blockColors;
+          block.rowHeight = blockData.rowHeight;
         } else {
-          item.blockEditable = false;
+          block.blockEditable = false;
         }
       });
-      await self.saveToStorage({ blocks: self.blocks }, "blocks", self.blocks);
-    },
-
-    async saveToStorage(object, stringName, value) {
-      const self = this;
-      try {
-        // Check if we're in a Chrome extension context
-        if (
-          typeof chrome !== "undefined" &&
-          chrome.storage &&
-          chrome.storage.local
-        ) {
-          // Chrome storage is async - use Promise wrapper
-          await new Promise((resolve, reject) => {
-            chrome.storage.local.set(object, () => {
-              if (chrome.runtime.lastError) {
-                reject(new Error(chrome.runtime.lastError.message));
-              } else {
-                resolve();
-              }
-            });
-          });
-          console.log("Saved to chrome.storage:", object);
-        } else {
-          throw new Error("Chrome storage not available");
-        }
-      } catch (error) {
-        console.log("Falling back to localStorage:", error.message);
-        // localStorage is synchronous - no await needed
-        localStorage.setItem(stringName, JSON.stringify(value));
-      }
-    },
-
-    generateUniqueId() {
-      return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(
-        /[xy]/g,
-        function (c) {
-          var r = (Math.random() * 16) | 0,
-            v = c == "x" ? r : (r & 0x3) | 0x8;
-          return v.toString(16);
-        }
-      );
+      // Data is saved when user clicks "Save" button
     },
 
     async getData() {
-      const self = this;
       try {
-        // Check if we're in a Chrome extension context
-        if (
-          typeof chrome !== "undefined" &&
-          chrome.storage &&
-          chrome.storage.local
-        ) {
-          // Chrome storage is async - use Promise wrapper
-          const [blocksResult, styleResult] = await Promise.all([
-            new Promise((resolve, reject) => {
-              chrome.storage.local.get("blocks", (result) => {
-                if (chrome.runtime.lastError) {
-                  reject(new Error(chrome.runtime.lastError.message));
-                } else {
-                  resolve(result);
-                }
-              });
-            }),
-            new Promise((resolve, reject) => {
-              chrome.storage.local.get("style", (result) => {
-                if (chrome.runtime.lastError) {
-                  reject(new Error(chrome.runtime.lastError.message));
-                } else {
-                  resolve(result);
-                }
-              });
-            }),
-          ]);
+        const result = await StorageService.getMultiple([
+          STORAGE_KEYS.BLOCKS,
+          STORAGE_KEYS.STYLE,
+        ]);
 
-          if (blocksResult.blocks !== undefined && blocksResult.blocks.length) {
-            self.blocks = blocksResult.blocks;
-            console.log(
-              "Loaded blocks from chrome.storage:",
-              blocksResult.blocks
-            );
-          }
-
-          if (styleResult.style !== undefined) {
-            self.style = styleResult.style;
-            console.log("Loaded style from chrome.storage:", styleResult.style);
-          }
-          self.adjustBgColor();
-        } else {
-          throw new Error("Chrome storage not available");
+        if (result[STORAGE_KEYS.BLOCKS] !== undefined && result[STORAGE_KEYS.BLOCKS].length) {
+          this.blocks = result[STORAGE_KEYS.BLOCKS];
         }
+
+        if (result[STORAGE_KEYS.STYLE] !== undefined) {
+          this.style = result[STORAGE_KEYS.STYLE];
+        }
+
+        this.adjustBgColor();
       } catch (error) {
-        console.log("Falling back to localStorage:", error.message);
-        // localStorage is synchronous - no await needed
-        if (localStorage.getItem("blocks")) {
-          self.blocks = JSON.parse(localStorage.getItem("blocks"));
-        }
-        if (localStorage.getItem("style")) {
-          self.style = JSON.parse(localStorage.getItem("style"));
-        }
-        self.adjustBgColor();
+        this.adjustBgColor();
       }
     },
   },
 
   async created() {
-    const self = this;
-    await self.getData();
+    await this.getData();
   },
 
   watch: {
     blocks: {
-      async handler() {
-        const self = this;
-        console.log("blocks changed, saving...");
-        await self.saveToStorage(
-          { blocks: self.blocks },
-          "blocks",
-          self.blocks
-        );
-        if (self.blocks !== undefined && self.blocks.length === 0) {
-          self.editable = true;
+      handler() {
+        if (this.blocks !== undefined && this.blocks.length === 0) {
+          this.editable = true;
         }
       },
       deep: true,
-    },
-    editable: {
-      async handler() {
-        const self = this;
-        console.log("editable changed, saving blocks...");
-        await self.saveToStorage(
-          { blocks: self.blocks },
-          "blocks",
-          self.blocks
-        );
-      },
     },
   },
 };
@@ -445,7 +395,8 @@ body {
   }
 
   &--2,
-  &--3 {
+  &--3,
+  &--4 {
     width: 34px;
     height: 34px;
     right: 19px;
@@ -462,6 +413,10 @@ body {
 
   &--3 {
     bottom: 115px;
+  }
+
+  &--4 {
+    bottom: 160px;
   }
 
   span {

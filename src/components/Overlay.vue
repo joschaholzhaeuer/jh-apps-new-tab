@@ -24,366 +24,375 @@
 </template>
 
 <script>
-let nextIconId = 1;
-
 export default {
   name: "Overlay",
 
-  components: {},
-
-  props: ["activeColor", "styleRounded", "currentIcon", "selectedItemId"],
+  props: {
+    activeColor: {
+      type: String,
+      required: true,
+    },
+    styleRounded: {
+      type: Boolean,
+      default: true,
+    },
+    currentIcon: {
+      type: String,
+      default: "tag",
+    },
+    selectedItemId: {
+      type: String,
+      default: "",
+    },
+  },
 
   data() {
+    let iconId = 0;
     return {
       selectedItemName: "",
       icons: [
         {
-          id: nextIconId++,
+          id: ++iconId,
           name: "tag",
           selected: false,
         },
         {
-          id: nextIconId++,
+          id: ++iconId,
           name: "envelope",
           selected: false,
         },
         {
-          id: nextIconId++,
+          id: ++iconId,
           name: "desktop",
           selected: false,
         },
         {
-          id: nextIconId++,
+          id: ++iconId,
           name: "headphones",
           selected: false,
         },
         {
-          id: nextIconId++,
+          id: ++iconId,
           name: "hashtag",
           selected: false,
         },
         {
-          id: nextIconId++,
+          id: ++iconId,
           name: "calendar",
           selected: false,
         },
         {
-          id: nextIconId++,
+          id: ++iconId,
           name: "file",
           selected: false,
         },
         {
-          id: nextIconId++,
+          id: ++iconId,
           name: "briefcase",
           selected: false,
         },
         {
-          id: nextIconId++,
+          id: ++iconId,
           name: "server",
           selected: false,
         },
         {
-          id: nextIconId++,
+          id: ++iconId,
           name: "train",
           selected: false,
         },
         {
-          id: nextIconId++,
+          id: ++iconId,
           name: "cutlery",
           selected: false,
         },
         {
-          id: nextIconId++,
+          id: ++iconId,
           name: "comment",
           selected: false,
         },
         {
-          id: nextIconId++,
+          id: ++iconId,
           name: "tv",
           selected: false,
         },
         {
-          id: nextIconId++,
+          id: ++iconId,
           name: "credit-card",
           selected: false,
         },
         {
-          id: nextIconId++,
+          id: ++iconId,
           name: "heart",
           selected: false,
         },
         {
-          id: nextIconId++,
+          id: ++iconId,
           name: "link",
           selected: false,
         },
         {
-          id: nextIconId++,
+          id: ++iconId,
           name: "anchor",
           selected: false,
         },
         {
-          id: nextIconId++,
+          id: ++iconId,
           name: "arrow-right",
           selected: false,
         },
         {
-          id: nextIconId++,
+          id: ++iconId,
           name: "music",
           selected: false,
         },
         {
-          id: nextIconId++,
+          id: ++iconId,
           name: "play",
           selected: false,
         },
         {
-          id: nextIconId++,
+          id: ++iconId,
           name: "rss",
           selected: false,
         },
         {
-          id: nextIconId++,
+          id: ++iconId,
           name: "book",
           selected: false,
         },
         {
-          id: nextIconId++,
+          id: ++iconId,
           name: "folder",
           selected: false,
         },
         {
-          id: nextIconId++,
+          id: ++iconId,
           name: "shopping-bag",
           selected: false,
         },
         {
-          id: nextIconId++,
+          id: ++iconId,
           name: "globe",
           selected: false,
         },
         {
-          id: nextIconId++,
+          id: ++iconId,
           name: "key",
           selected: false,
         },
         {
-          id: nextIconId++,
+          id: ++iconId,
           name: "star",
           selected: false,
         },
         {
-          id: nextIconId++,
+          id: ++iconId,
           name: "cog",
           selected: false,
         },
         {
-          id: nextIconId++,
+          id: ++iconId,
           name: "bed",
           selected: false,
         },
         {
-          id: nextIconId++,
+          id: ++iconId,
           name: "bell",
           selected: false,
         },
         {
-          id: nextIconId++,
+          id: ++iconId,
           name: "ambulance",
           selected: false,
         },
         {
-          id: nextIconId++,
+          id: ++iconId,
           name: "cloud",
           selected: false,
         },
         {
-          id: nextIconId++,
+          id: ++iconId,
           name: "asterisk",
           selected: false,
         },
         {
-          id: nextIconId++,
+          id: ++iconId,
           name: "beer",
           selected: false,
         },
         {
-          id: nextIconId++,
-          name: "book",
-          selected: false,
-        },
-        {
-          id: nextIconId++,
+          id: ++iconId,
           name: "bookmark",
           selected: false,
         },
         {
-          id: nextIconId++,
+          id: ++iconId,
           name: "bug",
           selected: false,
         },
         {
-          id: nextIconId++,
+          id: ++iconId,
           name: "camera",
           selected: false,
         },
         {
-          id: nextIconId++,
+          id: ++iconId,
           name: "car",
           selected: false,
         },
         {
-          id: nextIconId++,
+          id: ++iconId,
           name: "check",
           selected: false,
         },
         {
-          id: nextIconId++,
+          id: ++iconId,
           name: "clipboard",
           selected: false,
         },
         {
-          id: nextIconId++,
+          id: ++iconId,
           name: "code",
           selected: false,
         },
         {
-          id: nextIconId++,
+          id: ++iconId,
           name: "coffee",
           selected: false,
         },
         {
-          id: nextIconId++,
+          id: ++iconId,
           name: "cube",
           selected: false,
         },
         {
-          id: nextIconId++,
+          id: ++iconId,
           name: "database",
           selected: false,
         },
         {
-          id: nextIconId++,
+          id: ++iconId,
           name: "edit",
           selected: false,
         },
         {
-          id: nextIconId++,
+          id: ++iconId,
           name: "flag",
           selected: false,
         },
         {
-          id: nextIconId++,
+          id: ++iconId,
           name: "eye",
           selected: false,
         },
         {
-          id: nextIconId++,
+          id: ++iconId,
           name: "female",
           selected: false,
         },
         {
-          id: nextIconId++,
+          id: ++iconId,
           name: "male",
           selected: false,
         },
         {
-          id: nextIconId++,
+          id: ++iconId,
           name: "folder-open",
           selected: false,
         },
         {
-          id: nextIconId++,
+          id: ++iconId,
           name: "home",
           selected: false,
         },
         {
-          id: nextIconId++,
+          id: ++iconId,
           name: "gift",
           selected: false,
         },
         {
-          id: nextIconId++,
+          id: ++iconId,
           name: "id-card",
           selected: false,
         },
         {
-          id: nextIconId++,
+          id: ++iconId,
           name: "image",
           selected: false,
         },
         {
-          id: nextIconId++,
+          id: ++iconId,
           name: "microphone",
           selected: false,
         },
         {
-          id: nextIconId++,
+          id: ++iconId,
           name: "lock",
           selected: false,
         },
         {
-          id: nextIconId++,
+          id: ++iconId,
           name: "shopping-cart",
           selected: false,
         },
         {
-          id: nextIconId++,
+          id: ++iconId,
           name: "phone",
           selected: false,
         },
         {
-          id: nextIconId++,
+          id: ++iconId,
           name: "question",
           selected: false,
         },
         {
-          id: nextIconId++,
+          id: ++iconId,
           name: "search",
           selected: false,
         },
         {
-          id: nextIconId++,
+          id: ++iconId,
           name: "shield",
           selected: false,
         },
         {
-          id: nextIconId++,
+          id: ++iconId,
           name: "tint",
           selected: false,
         },
         {
-          id: nextIconId++,
+          id: ++iconId,
           name: "tree",
           selected: false,
         },
         {
-          id: nextIconId++,
+          id: ++iconId,
           name: "trash",
           selected: false,
         },
         {
-          id: nextIconId++,
+          id: ++iconId,
           name: "trophy",
           selected: false,
         },
         {
-          id: nextIconId++,
+          id: ++iconId,
           name: "user",
           selected: false,
         },
         {
-          id: nextIconId++,
+          id: ++iconId,
           name: "wifi",
           selected: false,
         },
         {
-          id: nextIconId++,
+          id: ++iconId,
           name: "wrench",
           selected: false,
         },
         {
-          id: nextIconId++,
+          id: ++iconId,
           name: "users",
           selected: false,
         },
@@ -393,32 +402,24 @@ export default {
 
   methods: {
     selectIcon(idToSelect) {
-      var self = this;
+      // Deselect all icons
+      this.icons.forEach((icon) => (icon.selected = false));
 
-      // deselect currently selected item
-      self.icons.filter((item) => {
-        if (item.selected) {
-          item.selected = false;
-        }
-      });
-
-      // select clicked item
-      self.icons.filter((item) => {
-        if (item.id === idToSelect) {
-          item.selected = true;
-          self.selectedItemName = item.name;
-        }
-      });
+      // Select clicked icon
+      const selectedIcon = this.icons.find((icon) => icon.id === idToSelect);
+      if (selectedIcon) {
+        selectedIcon.selected = true;
+        this.selectedItemName = selectedIcon.name;
+      }
     },
 
     setCurrentIcon() {
-      const self = this;
-      const iconToSelect = self.icons.find((icon) => {
-        return icon.name === self.currentIcon;
-      });
+      const iconToSelect = this.icons.find(
+        (icon) => icon.name === this.currentIcon
+      );
       if (iconToSelect) {
         iconToSelect.selected = true;
-        self.selectedItemName = iconToSelect.name;
+        this.selectedItemName = iconToSelect.name;
       }
     },
   },
