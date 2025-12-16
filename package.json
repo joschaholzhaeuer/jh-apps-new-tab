@@ -1,6 +1,6 @@
 {
   "name": "jh-app-new-tab",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "description": "A modern Vue.js Chrome Extension for New Tab page",
   "author": "joho.dev@outlook.com",
   "private": true,

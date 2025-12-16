@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "New Tab Link Collection",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "description": "Beautiful new tab page with customizable link collections, icons, and themes. Organize your favorite sites in style.",
   "chrome_url_overrides": {
     "newtab": "index.html"
